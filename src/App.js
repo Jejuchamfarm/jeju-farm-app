@@ -1,22 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Share2, Heart, Star, Package, Info, Volume2, ChevronRight, ChevronLeft } from 'lucide-react';
+import { MapPin, Package, Volume2, ChevronRight, ChevronLeft } from 'lucide-react';
 
 // ProductCard Component for reusable product display
-const ProductCard = ({ imageSrc, imageAlt, name, description, originalPrice, discountedPrice, rating, onBuyClick }) => {
+const ProductCard = ({ imageSrc, imageAlt, name, description }) => {
   const [isPackagingTooltipVisible, setIsPackagingTooltipVisible] = useState(false); // Local state for tooltip
-
-  // Function to display star ratings based on the given value
-  const displayRating = (value) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      if (i <= value) {
-        stars.push(<Star key={i} fill="currentColor" size={18} />);
-      } else {
-        stars.push(<Star key={i} size={18} />);
-      }
-    }
-    return stars;
-  };
 
   return (
     <div className="relative bg-white rounded-xl shadow-md overflow-hidden group border border-orange-100 hover:shadow-lg transition-shadow duration-300">
@@ -32,25 +19,6 @@ const ProductCard = ({ imageSrc, imageAlt, name, description, originalPrice, dis
         <h3 className="text-xl font-semibold text-gray-900 mb-1 leading-tight">{name}</h3>
         {/* Product Description */}
         <p className="text-gray-600 text-sm mb-2">{description}</p>
-        {/* Star Rating */}
-        <div className="flex items-center text-yellow-500 mb-2">
-          {displayRating(rating)}
-          <span className="ml-2 text-gray-600 text-sm">({rating.toFixed(1)}/5.0)</span>
-        </div>
-        {/* Price Information */}
-        <div className="flex flex-col items-start mb-3">
-          {originalPrice && (
-            <span className="text-gray-500 text-sm line-through mb-0.5">{originalPrice.toLocaleString()}원</span>
-          )}
-          <span className="text-2xl font-bold text-orange-700">{discountedPrice.toLocaleString()}원</span>
-        </div>
-        {/* Buy Now Button */}
-        <button
-          className="w-full px-4 py-2 bg-orange-500 text-white rounded-full font-semibold shadow-sm hover:bg-orange-600 transition-colors transform hover:scale-105"
-          onClick={onBuyClick}
-        >
-          구매하기
-        </button>
       </div>
       {/* Packaging Info Tooltip */}
       <div
@@ -75,34 +43,26 @@ const App = () => {
   const [currentHeroImageIndex, setCurrentHeroImageIndex] = useState(0);
   // State for managing the visibility of the representative's message popup
   const [showRepresentativeMessage, setShowRepresentativeMessage] = useState(false);
+  // State for managing the visibility of the map image popup
+  const [showMapImagePopup, setShowMapImagePopup] = useState(false);
 
-  // Array of hero images for the carousel
-  // These URLs have been updated with the provided Google Drive links.
+
+  // Array of hero images for the carousel (updated to only 3 images)
   const heroImages = [
     {
-      // Image 1: 따스한 아침 햇살에 빛나는 한라봉/감귤 바구니
-      src: "https://drive.google.com/uc?export=view&id=1H6Z61Bu7UuDR85wVRU-a8gfBvycyEtj5",
-      alt: "따스한 아침 햇살에 빛나는 한라봉/감귤 바구니"
+      // 천혜향 천지
+      src: "https://i.imgur.com/3WR7gLa.jpg",
+      alt: "천혜향이 가득한 제주 농원 풍경"
     },
     {
-      // Image 2: 제주참농원 대표가 고급스러운 우드 테이블 위에서 과일을 정성스레 선별하는 장면
-      src: "https://drive.google.com/uc?export=view&id=1pS6_JYjl9mEauu3wy1bt8Dj2lS2SvWYj",
-      alt: "제주참농원 대표가 과일을 선별하는 장면"
+      // 약도
+      src: "https://i.imgur.com/kLnlhAZ.jpg",
+      alt: "제주참농원 약도"
     },
     {
-      // Image 3: 고객이 선물 박스를 받아드는 순간의 포근한 표정
-      src: "https://drive.google.com/uc?export=view&id=1fx3mqPIzOIrEHAMKJbzKNYvImvUdchT6",
-      alt: "고객이 선물 박스를 받아드는 장면"
-    },
-    {
-      // Image 4: 깔끔하고 따뜻한 매장 내부
-      src: "https://drive.google.com/uc?export=view&id=1Ygr6VZkx3opovn6LVYK9rdqJMkUvdAhM",
-      alt: "깔끔하고 따뜻한 매장 내부"
-    },
-    {
-      // Image 5: 방금 잡아 올린 듯한 신선 생선
-      src: "https://drive.google.com/uc?export=view&id=1Y-IRXm8FJE54Fpg4iftLGhCkC5seh3Yg",
-      alt: "방금 잡아 올린 듯한 신선 생선"
+      // 할인매장 시간 안내
+      src: "https://i.imgur.com/E6WXiJl.jpg",
+      alt: "제주참농원 할인매장 시간 안내"
     },
   ];
 
@@ -126,34 +86,7 @@ const App = () => {
 
   // Handler for the "View Map" button
   const handleViewMap = () => {
-    // Direct link to Google Maps for the store address
-    const address = "제주특별자치도 제주시 번영로 345, 내트럭하우스 1층";
-    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
-  };
-
-  // Handler for the "Share" button (placeholder functionality)
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: '제주참농원',
-        text: '제주 청정 자연 속, 신선함을 담다!',
-        url: window.location.href,
-      }).then(() => console.log('Successful share'))
-        .catch((error) => console.log('Error sharing', error));
-    } else {
-      // Fallback for browsers that do not support the Web Share API
-      const messageBox = document.createElement('div');
-      messageBox.className = 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50';
-      messageBox.innerHTML = `
-        <div class="bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full text-center relative animate-fade-in-up">
-          <h3 class="text-2xl font-bold text-orange-700 mb-4">공유 기능 안내</h3>
-          <p class="text-lg leading-relaxed text-gray-700 mb-6">이 브라우저에서는 공유 기능을 지원하지 않습니다. 아래 URL을 복사하여 공유해주세요:</p>
-          <input type="text" value="${window.location.href}" readonly class="w-full p-3 border border-gray-300 rounded-lg mb-4 text-center text-gray-800" />
-          <button class="px-6 py-3 bg-orange-600 text-white font-bold rounded-full shadow-md hover:bg-orange-700 transition-all transform hover:scale-105" onclick="this.closest('.fixed').remove()">닫기</button>
-        </div>
-      `;
-      document.body.appendChild(messageBox);
-    }
+    setShowMapImagePopup(true); // Show the map image popup
   };
 
   // Function to show a custom message box instead of alert()
@@ -176,7 +109,35 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-100 font-['Inter'] text-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-100 font-['Pretendard'] text-gray-800">
+      {/* Tailwind CSS Script - Always include this for Tailwind to work */}
+      <script src="https://cdn.tailwindcss.com"></script>
+      {/* Pretendard Font Import */}
+      <style>
+        {`
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+
+        body {
+          font-family: 'Pretendard', sans-serif;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideInUp {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.5s ease-out forwards;
+        }
+        .animate-fade-in-up {
+          animation: slideInUp 0.5s ease-out forwards;
+        }
+        `}
+      </style>
+
       {/* Header Section */}
       <header className="relative w-full overflow-hidden rounded-b-3xl shadow-xl">
         {/* Hero Image Carousel */}
@@ -266,12 +227,12 @@ const App = () => {
 
         {/* Producer Story Section */}
         <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8">
-          <h2 className="text-3xl font-bold text-orange-700 mb-4">생산자 스토리</h2>
+          <h2 className="text-3xl font-bold text-orange-700 mb-4">제주 프리미엄 특산물 매장</h2>
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             {/* Image 6: 제주참농원 대표 */}
-            <div className="relative">
+            <div className="relative mb-6 md:mb-0"> {/* Adjusted margin for responsiveness */}
               <img
-                src="https://drive.google.com/uc?export=view&id=16YzDNj634ClOfYarI3VPvqR0jTDYhN3H"
+                src="https://i.imgur.com/sJPJ4vo.jpg" // 생산자 이미지로 변경
                 alt="제주참농원 대표"
                 className="w-48 h-48 rounded-full object-cover shadow-md cursor-pointer hover:scale-105 transition-transform"
                 onClick={() => setShowRepresentativeMessage(true)}
@@ -334,133 +295,64 @@ const App = () => {
         <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8">
           <h2 className="text-3xl font-bold text-orange-700 mb-6">제주참농원 상품</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {/* Product Card 1: Hallabong */}
+            {/* Product Card 1: 귤 */}
             <ProductCard
-              imageSrc="https://drive.google.com/uc?export=view&id=1VT15mtrv-wqlKP8jq_LqrEu19IcmkaTL"
-              imageAlt="탐스러운 제주 한라봉"
-              name="탐스러운 제주 한라봉"
-              description="제주 햇살을 머금고 자란 달콤한 한라봉"
-              originalPrice={30000}
-              discountedPrice={25000}
-              rating={4.5}
-              onBuyClick={() => showCustomMessageBox('구매하기', '장바구니에 담기 기능은 현재 개발 중입니다.')}
+              imageSrc="https://i.imgur.com/pMIMSaC.jpg" // 새로운 귤 이미지로 변경
+              imageAlt="햇살 가득 제주 참농원 귤"
+              name="햇살 가득 제주 참농원 귤"
+              description="제주 햇살을 가득 머금은 참농원의 달콤한 귤"
             />
 
-            {/* Product Card 2: Gosori-sul (Updated from Silver Hairtail) */}
+            {/* Product Card 2: 한라봉 */}
             <ProductCard
-              imageSrc="https://drive.google.com/uc?export=view&id=1lpmhqJ91hlcBMdwAAYCnUvriBqlV6j1_"
-              imageAlt="향긋한 제주 고소리술"
-              name="향긋한 제주 고소리술"
-              description="제주를 담은 향긋한 전통주"
-              originalPrice={45000}
-              discountedPrice={38000}
-              rating={5.0}
-              onBuyClick={() => showCustomMessageBox('구매하기', '장바구니에 담기 기능은 현재 개발 중입니다.')}
+              imageSrc="https://i.imgur.com/03LPOMn.jpg" // 새로운 한라봉 이미지로 변경
+              imageAlt="탐스러운 제주 참농원 한라봉"
+              name="탐스러운 제주 참농원 한라봉"
+              description="제주 햇살을 머금고 자란 참농원이 보장하는 달콤한 한라봉"
             />
 
-            {/* Product Card 3: Mandarin Chocolate */}
+            {/* Product Card 3: 천혜향 */}
             <ProductCard
-              imageSrc="https://drive.google.com/uc?export=view&id=1eKio39eRn-wTUl-dU-01Zs6FUKlb-N3Y"
-              imageAlt="제주 감귤 초콜릿"
-              name="제주 감귤 초콜릿"
-              description="제주 감귤의 상큼함이 가득한 초콜릿"
-              originalPrice={15000}
-              discountedPrice={12000}
-              rating={3.8}
-              onBuyClick={() => showCustomMessageBox('구매하기', '장바구니에 담기 기능은 현재 개발 중입니다.')}
+              imageSrc="https://i.imgur.com/3WR7gLa.jpg" // 천혜향 천지 이미지 (기존과 동일)
+              imageAlt="하늘이 내린 향기 제주 참농원 천혜향"
+              name="하늘이 내린 향기 제주 참농원 천혜향"
+              description="하늘이 내린 향기, 참농원이 엄선한 프리미엄 천혜향"
             />
 
-            {/* Product Card 4: Cheonhyehyang */}
+            {/* Product Card 4: 허쉬 초콜릿 (감귤 초콜릿 대신 허쉬 이미지 사용) */}
             <ProductCard
-              imageSrc="https://drive.google.com/uc?export=view&id=1uEJtJX2YxQ4MpwL8nKd7nAFV3ku4RuEX"
-              imageAlt="달콤한 제주 천혜향"
-              name="달콤한 제주 천혜향"
-              description="하늘이 내린 향기, 제주 천혜향"
-              originalPrice={35000}
-              discountedPrice={30000}
-              rating={4.9}
-              onBuyClick={() => showCustomMessageBox('구매하기', '장바구니에 담기 기능은 현재 개발 중입니다.')}
+              imageSrc="https://i.imgur.com/2lpWY4Y.jpg"
+              imageAlt="달콤한 허쉬 초콜릿"
+              name="달콤한 허쉬 초콜릿"
+              description="제주참농원에서 엄선한 달콤한 허쉬 초콜릿"
             />
 
-            {/* Product Card 5: Okdom */}
+            {/* Product Card 5: 오메기떡 파이 */}
             <ProductCard
-              imageSrc="https://drive.google.com/uc?export=view&id=1TFCu52enK0lBVJ2YziKbhekXxQGVN810"
-              imageAlt="귀한 제주 옥돔"
-              name="귀한 제주 옥돔"
-              description="제주 바다의 보물, 귀한 옥돔"
-              originalPrice={50000}
-              discountedPrice={45000}
-              rating={4.7}
-              onBuyClick={() => showCustomMessageBox('구매하기', '장바구니에 담기 기능은 현재 개발 중입니다.')}
+              imageSrc="https://i.imgur.com/nRx319o.jpg"
+              imageAlt="쫄깃한 제주 참농원 오메기떡 파이"
+              name="쫄깃한 제주 참농원 오메기떡 파이"
+              description="제주 전통의 맛을 그대로 담은 참농원의 쫄깃한 오메기떡 파이"
             />
 
-            {/* New Product Card 6: Jeju Black Pork */}
+            {/* Product Card 6: 고소리술 */}
             <ProductCard
-              imageSrc="https://placehold.co/600x400/FFD700/FFF8DC?text=Image+12"
-              imageAlt="제주 흑돼지"
-              name="제주 프리미엄 흑돼지"
-              description="육즙 가득, 고소한 제주 흑돼지"
-              originalPrice={40000}
-              discountedPrice={35000}
-              rating={4.8}
-              onBuyClick={() => showCustomMessageBox('구매하기', '장바구니에 담기 기능은 현재 개발 중입니다.')}
-            />
-
-            {/* New Product Card 7: Jeju Omegi Tteok */}
-            <ProductCard
-              imageSrc="https://placehold.co/600x400/FFA500/FFF8DC?text=Image+13"
-              imageAlt="제주 오메기떡"
-              name="쫄깃한 제주 오메기떡"
-              description="제주 전통의 맛, 쫄깃한 오메기떡"
-              originalPrice={20000}
-              discountedPrice={18000}
-              rating={4.2}
-              onBuyClick={() => showCustomMessageBox('구매하기', '장바구니에 담기 기능은 현재 개발 중입니다.')}
-            />
-
-            {/* New Product Card 8: Jeju Mandarin Juice */}
-            <ProductCard
-              imageSrc="https://placehold.co/600x400/FF8C00/FFF8DC?text=Image+14"
-              imageAlt="제주 감귤 주스"
-              name="상큼한 제주 감귤 주스"
-              description="제주 감귤 100%, 상큼한 주스"
-              originalPrice={10000}
-              discountedPrice={8500}
-              rating={4.6}
-              onBuyClick={() => showCustomMessageBox('구매하기', '장바구니에 담기 기능은 현재 개발 중입니다.')}
+              imageSrc="https://i.imgur.com/jRFFhQH.jpg"
+              imageAlt="향긋한 제주 참농원 고소리술"
+              name="향긋한 제주 참농원 고소리술"
+              description="제주의 깊은 향을 담은 참농원의 전통 고소리술"
             />
           </div>
         </section>
 
         {/* Reviews/Social Share Section */}
         <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8 text-center">
-          <h2 className="text-3xl font-bold text-orange-700 mb-6">고객 후기 및 공유</h2>
+          <h2 className="text-3xl font-bold text-orange-700 mb-6">고객 후기</h2>
           <p className="text-gray-600 mb-6">
             따뜻한 조명 아래, 고객이 직접 찍은 한라봉 언박싱/식탁 사진처럼 소중한 후기를 남겨주세요!
           </p>
-          <div className="flex justify-center space-x-4 mb-6">
-            <button
-              className="flex items-center px-6 py-3 bg-blue-500 text-white font-bold rounded-full shadow-md hover:bg-blue-600 transition-all transform hover:scale-105"
-              onClick={() => showCustomMessageBox('후기 작성', '후기 작성 기능은 현재 개발 중입니다.')}
-            >
-              <Info size={24} className="mr-2" /> 후기 작성
-            </button>
-            <button
-              className="flex items-center px-6 py-3 bg-purple-500 text-white font-bold rounded-full shadow-md hover:bg-purple-600 transition-all transform hover:scale-105"
-              onClick={handleShare}
-            >
-              <Share2 size={24} className="mr-2" /> 공유하기
-            </button>
-            <button
-              className="flex items-center px-6 py-3 bg-red-500 text-white font-bold rounded-full shadow-md hover:bg-red-600 transition-all transform hover:scale-105"
-              onClick={() => showCustomMessageBox('좋아요', '좋아요 기능은 현재 개발 중입니다.')}
-            >
-              <Heart size={24} className="mr-2" /> 좋아요
-            </button>
-          </div>
           <p className="text-gray-600">
-            고객님들의 소중한 후기와 함께 제주참농원의 신선함을 널리 알려주세요!
-            {/* Slogan Example: "정성과 신뢰로, 프리미엄 산지직송" */}
+            고객님들의 실제 후기가 쌓이면 이곳에 첨부될 예정입니다.
           </p>
         </section>
       </main>
@@ -483,27 +375,32 @@ const App = () => {
         </div>
       )}
 
-      {/* Tailwind CSS Script - Always include this for Tailwind to work */}
-      <script src="https://cdn.tailwindcss.com"></script>
-      {/* Custom styles for animations (optional, but good for dynamic effects) */}
-      <style>
-        {`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes slideInUp {
-          from { transform: translateY(20px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.5s ease-out forwards;
-        }
-        .animate-fade-in-up {
-          animation: slideInUp 0.5s ease-out forwards;
-        }
-        `}
-      </style>
+      {/* Map Image Popup */}
+      {showMapImagePopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-4 max-w-3xl w-full text-center relative animate-fade-in-up">
+            <button
+              onClick={() => setShowMapImagePopup(false)}
+              className="absolute top-2 right-2 p-2 bg-gray-200 rounded-full text-gray-600 hover:bg-gray-300 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            <h3 className="text-2xl font-bold text-orange-700 mt-4 mb-4">제주참농원 약도</h3>
+            <img
+              src="https://i.imgur.com/kLnlhAZ.jpg"
+              alt="제주참농원 약도"
+              className="w-full h-auto rounded-lg mb-4"
+              onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/800x600/cccccc/333333?text=Map+Image+Not+Found"; }}
+            />
+            <button
+              onClick={() => setShowMapImagePopup(false)}
+              className="px-6 py-3 bg-orange-600 text-white font-bold rounded-full shadow-md hover:bg-orange-700 transition-all transform hover:scale-105"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

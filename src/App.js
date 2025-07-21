@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Package, Volume2, ChevronRight, ChevronLeft } from 'lucide-react';
+import { MapPin, Package, Volume2, ChevronRight, ChevronLeft, Leaf, ShoppingBag, Store, Box, Star } from 'lucide-react'; // Added new icons
 
 // ProductCard Component for reusable product display
 const ProductCard = ({ imageSrc, imageAlt, name, description }) => {
@@ -109,7 +109,7 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cream-warm font-['Pretendard'] text-almost-black"> {/* Changed main background and text color */}
+    <div className="min-h-screen bg-[#FFF8F0] font-['Pretendard'] text-almost-black"> {/* Changed main background */}
       {/* Tailwind CSS Script - Always include this for Tailwind to work */}
       <script src="https://cdn.tailwindcss.com"></script>
       {/* Tailwind Config for Custom Colors */}
@@ -121,8 +121,8 @@ const App = () => {
                 colors: {
                   'cream-warm': '#FFF8F0',
                   'cream-light-beige': '#FFF6EA',
-                  'orange-primary': '#FF7F00', // Darker orange
-                  'orange-hover': '#E67300',   // Darker hover orange
+                  'orange-primary': '#FF7F00', // Darker orange (not used directly in new button style)
+                  'orange-hover': '#E67300',   // Darker hover orange (not used directly in new button style)
                   'almost-black': '#222',
                 }
               }
@@ -176,7 +176,7 @@ const App = () => {
               onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/1200x600/cccccc/333333?text=Image+Not+Found"; }}
             />
           ))}
-          {/* Carousel Navigation Buttons - Re-added */}
+          {/* Carousel Navigation Buttons */}
           <button
             onClick={goToPreviousHeroImage}
             className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black bg-opacity-40 text-white rounded-full hover:bg-opacity-60 transition-all focus:outline-none focus:ring-2 focus:ring-white"
@@ -208,7 +208,7 @@ const App = () => {
 
         {/* Overlay Content - Centered */}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-white text-center"> {/* Changed positioning and added flex for centering */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-white text-center">
           <h1 className="text-6xl md:text-8xl font-extrabold drop-shadow-lg mb-2">
             <span className="font-dancing-script italic">ChamFarm</span>
           </h1>
@@ -217,74 +217,67 @@ const App = () => {
 
       <main className="container mx-auto px-4 py-8 md:py-12">
         {/* About Section */}
-        <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8">
-          <h2 className="text-3xl font-bold text-orange-primary mb-4">제주참농원 소개</h2>
-          <p className="text-2xl leading-relaxed text-left">
-            맑은 제주 자연, <strong className="font-bold text-orange-primary">신선함 그대로!</strong>
+        <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8 text-center">
+          <div className="flex items-center mb-2 justify-center">
+            <Leaf size={28} className="text-orange-primary" />
+            <h2 className="font-bold text-3xl text-orange-primary ml-3">제주참농원 소개</h2>
+          </div>
+          <p className="text-2xl leading-relaxed">
+            맑은 제주 자연, <span className="text-orange-500 font-bold">신선함 그대로!</span>
             <br />
-            제주참농원은 청정 제주에서 직접 엄선한 과일과 해산물을 <strong className="font-bold text-orange-primary">신선하게 전해드립니다.</strong>
+            제주참농원은 청정 제주에서 직접 엄선한 과일과 해산물을 <span className="text-orange-500 font-bold">신선하게 전해드립니다.</span>
             <br />
-            하나하나 정성껏 포장하여, 고객님께 제주만의 <strong className="font-bold text-orange-primary">진짜 맛과 감동</strong>을 선물합니다.
+            하나하나 정성껏 포장하여, 고객님께 제주만의 <span className="text-orange-500 font-bold">진짜 맛과 감동</span>을 선물합니다.
             <br />
-            <strong className="font-bold text-orange-primary">믿을 수 있는 품질과 서비스</strong>, 제주참농원에서 직접 경험해보세요!
+            <span className="text-orange-500 font-bold">믿을 수 있는 품질과 서비스</span>, 제주참농원에서 직접 경험해보세요!
           </p>
         </section>
 
         {/* Producer Story Section (Renamed to "제주 프리미엄 특산물 매장" and content updated) */}
-        <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8">
-          <h2 className="text-3xl font-bold text-orange-primary mb-4">제주 프리미엄 특산물 매장</h2>
-          <div className="flex flex-col md:flex-row items-center md:items-center gap-6">
-            {/* Image 6: 제주참농원 대표 */}
-            <div className="relative mb-6 md:mb-0">
-              <img
-                src="https://i.imgur.com/sJPJ4vo.jpg" // 생산자 이미지로 변경
-                alt="제주참농원 대표"
-                className="w-48 h-48 rounded-full object-cover shadow-md cursor-pointer hover:scale-105 transition-transform"
-                onClick={() => setShowRepresentativeMessage(true)}
-                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/200x200/cccccc/333333?text=Image+Not+Found"; }}
-              />
-              <button
-                onClick={handleListenVoice}
-                className="absolute bottom-2 right-2 p-2 bg-orange-primary text-white rounded-full shadow-md hover:bg-orange-hover transition-colors transform hover:scale-110"
-                aria-label="대표 음성 듣기"
-              >
-                <Volume2 size={20} />
-              </button>
-            </div>
-            <div className="flex-1 text-left">
-              <p className="text-2xl leading-relaxed">
-                <strong className="font-bold text-orange-primary">오늘 수확, 오늘 포장, 오늘 출고!</strong>
-                <br />
-                <strong className="font-bold text-orange-primary">직접 관리하는 품질과 빠른 배송!</strong>
-                <br />
-                <strong className="font-bold text-orange-primary">가장 신선한</strong> 제주산 과일, 해산물, 전통주까지!
-                <br />
-                고객님께 <strong className="font-bold text-orange-primary">믿고 선택할 수 있는</strong> 제주 특산물만을 전합니다.
-              </p>
-            </div>
+        <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8 text-center">
+          <div className="flex items-center mb-2 justify-center">
+            <ShoppingBag size={28} className="text-orange-primary" />
+            <h2 className="font-bold text-3xl text-orange-primary ml-3">제주 프리미엄 특산물 매장</h2>
+          </div>
+          <div className="flex flex-col items-center gap-6 justify-center">
+            <p className="text-2xl leading-relaxed">
+              <span className="text-orange-500 font-bold">오늘 수확, 오늘 포장, 오늘 출고!</span>
+              <br />
+              <span className="text-orange-500 font-bold">직접 관리하는 품질과 빠른 배송!</span>
+              <br />
+              <span className="text-orange-500 font-bold">가장 신선한</span> 제주산 과일, 해산물, 전통주까지!
+              <br />
+              고객님께 <span className="text-orange-500 font-bold">믿고 선택할 수 있는</span> 제주 특산물만을 전합니다.
+            </p>
           </div>
         </section>
 
         {/* Store Information Section */}
-        <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8">
-          <h2 className="text-3xl font-bold text-orange-primary mb-4">매장 안내</h2>
-          <ul className="text-2xl leading-relaxed space-y-2 text-left">
+        <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8 text-center">
+          <div className="flex items-center mb-2 justify-center">
+            <Store size={28} className="text-orange-primary" />
+            <h2 className="font-bold text-3xl text-orange-primary ml-3">매장 안내</h2>
+          </div>
+          <ul className="text-2xl leading-relaxed space-y-2 mx-auto max-w-lg">
             <li><strong>주소:</strong> 제주특별자치도 제주시 번영로 345, 내트럭하우스 1층</li>
             <li><strong>운영 시간:</strong> 08:30 ~ 19:00 (연중무휴)</li>
             <li><strong>특징:</strong> 방문/예약/픽업 가능</li>
           </ul>
           <button
             onClick={handleViewMap}
-            className="mt-6 px-6 py-3 bg-orange-500 text-white font-bold rounded-full shadow-md hover:bg-orange-600 border-2 border-orange-600 transition-all flex items-center justify-center transform hover:scale-105"
+            className="mt-6 bg-gradient-to-r from-orange-400 to-orange-500 shadow-lg rounded-full font-bold px-8 py-3 transition hover:from-orange-500 hover:to-orange-600 scale-105 flex items-center justify-center mx-auto text-white"
           >
             <MapPin size={24} className="mr-2" /> 약도보기
           </button>
         </section>
 
         {/* Product Showcase - Redesigned for CJ Market style */}
-        <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8">
-          <h2 className="text-3xl font-bold text-orange-primary mb-6">제주참농원 상품</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8 text-center">
+          <div className="flex items-center mb-2 justify-center">
+            <Box size={28} className="text-orange-primary" />
+            <h2 className="font-bold text-3xl text-orange-primary ml-3">제주참농원 상품</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {/* Product Card 1: 귤 */}
             <ProductCard
               imageSrc="https://i.imgur.com/pMIMSaC.jpg"
@@ -337,7 +330,10 @@ const App = () => {
 
         {/* Reviews/Social Share Section */}
         <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8 text-center">
-          <h2 className="text-3xl font-bold text-orange-primary mb-6">고객 후기</h2>
+          <div className="flex items-center mb-2 justify-center">
+            <Star size={28} className="text-orange-primary" />
+            <h2 className="font-bold text-3xl text-orange-primary ml-3">고객 후기</h2>
+          </div>
           <p className="text-2xl leading-relaxed mb-6">
             따뜻한 조명 아래, 고객이 직접 찍은 한라봉 언박싱/식탁 사진처럼 소중한 후기를 남겨주세요!
           </p>
@@ -357,7 +353,7 @@ const App = () => {
             </p>
             <button
               onClick={() => setShowRepresentativeMessage(false)}
-              className="px-6 py-3 bg-orange-primary text-white font-bold rounded-full shadow-md hover:bg-orange-hover transition-all transform hover:scale-105"
+              className="px-6 py-3 bg-gradient-to-r from-orange-400 to-orange-500 shadow-lg rounded-full font-bold px-8 py-3 transition hover:from-orange-500 hover:to-orange-600 scale-105 text-white"
             >
               닫기
             </button>
@@ -384,7 +380,7 @@ const App = () => {
             />
             <button
               onClick={() => setShowMapImagePopup(false)}
-              className="px-6 py-3 bg-orange-primary text-white font-bold rounded-full shadow-md hover:bg-orange-hover transition-all transform hover:scale-105"
+              className="px-6 py-3 bg-gradient-to-r from-orange-400 to-orange-500 shadow-lg rounded-full font-bold px-8 py-3 transition hover:from-orange-500 hover:to-orange-600 scale-105 text-white"
             >
               닫기
             </button>

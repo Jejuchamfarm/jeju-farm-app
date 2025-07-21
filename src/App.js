@@ -50,19 +50,19 @@ const App = () => {
   // Array of hero images for the carousel (updated to only 3 images)
   const heroImages = [
     {
-      // 천혜향 천지
+      // 새로운 귤 이미지로 교체
+      src: "https://i.imgur.com/i1ZwTNm.jpg",
+      alt: "탐스러운 제주 감귤"
+    },
+    {
+      // 기존 한라봉 이미지
+      src: "https://i.imgur.com/O7U1kDm.jpg",
+      alt: "싱싱한 제주 한라봉"
+    },
+    {
+      // 기존 천혜향 천지 이미지
       src: "https://i.imgur.com/3WR7gLa.jpg",
       alt: "천혜향이 가득한 제주 농원 풍경"
-    },
-    {
-      // 약도
-      src: "https://i.imgur.com/kLnlhAZ.jpg",
-      alt: "제주참농원 약도"
-    },
-    {
-      // 할인매장 시간 안내
-      src: "https://i.imgur.com/E6WXiJl.jpg",
-      alt: "제주참농원 할인매장 시간 안내"
     },
   ];
 
@@ -109,16 +109,39 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-100 font-['Pretendard'] text-gray-800">
+    <div className="min-h-screen bg-cream-warm font-['Pretendard'] text-almost-black"> {/* Changed main background and text color */}
       {/* Tailwind CSS Script - Always include this for Tailwind to work */}
       <script src="https://cdn.tailwindcss.com"></script>
-      {/* Pretendard Font Import */}
+      {/* Tailwind Config for Custom Colors */}
+      <script>
+        {`
+          tailwind.config = {
+            theme: {
+              extend: {
+                colors: {
+                  'cream-warm': '#FFF8F0',
+                  'cream-light-beige': '#FFF6EA',
+                  'orange-primary': '#FF7F00', // Darker orange
+                  'orange-hover': '#E67300',   // Darker hover orange
+                  'almost-black': '#222',
+                }
+              }
+            }
+          }
+        `}
+      </script>
+      {/* Pretendard Font Import and Dancing Script */}
       <style>
         {`
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
 
         body {
           font-family: 'Pretendard', sans-serif;
+        }
+
+        .font-dancing-script {
+          font-family: 'Dancing Script', cursive;
         }
 
         @keyframes fadeIn {
@@ -139,9 +162,9 @@ const App = () => {
       </style>
 
       {/* Header Section */}
-      <header className="relative w-full overflow-hidden rounded-b-3xl shadow-xl">
+      <header className="relative w-full overflow-hidden rounded-t-3xl rounded-b-3xl shadow-xl">
         {/* Hero Image Carousel */}
-        <div className="relative h-[60vh] md:h-[70vh] lg:h-[80vh]">
+        <div className="relative h-[30vh] md:h-[40vh] lg:h-[50vh]"> {/* Adjusted height for responsiveness */}
           {heroImages.map((image, index) => (
             <img
               key={index}
@@ -153,7 +176,7 @@ const App = () => {
               onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/1200x600/cccccc/333333?text=Image+Not+Found"; }}
             />
           ))}
-          {/* Carousel Navigation Buttons */}
+          {/* Carousel Navigation Buttons - Re-added */}
           <button
             onClick={goToPreviousHeroImage}
             className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black bg-opacity-40 text-white rounded-full hover:bg-opacity-60 transition-all focus:outline-none focus:ring-2 focus:ring-white"
@@ -183,54 +206,36 @@ const App = () => {
           </div>
         </div>
 
-        {/* Overlay Content */}
+        {/* Overlay Content - Centered */}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
-        <div className="absolute bottom-0 left-0 right-0 p-8 text-white text-center">
-          <h1 className="text-4xl md:text-6xl font-extrabold drop-shadow-lg mb-2">🌿 제주참농원</h1>
-          <p className="text-xl md:text-2xl font-semibold drop-shadow-md">제주 청정 자연 속, 신선함을 담다</p>
-          {/* Slogan Example: "제주 참맛, 당신의 식탁에 따뜻하게 전합니다." */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-white text-center"> {/* Changed positioning and added flex for centering */}
+          <h1 className="text-6xl md:text-8xl font-extrabold drop-shadow-lg mb-2">
+            <span className="font-dancing-script italic">ChamFarm</span>
+          </h1>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8 md:py-12">
         {/* About Section */}
         <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8">
-          <h2 className="text-3xl font-bold text-orange-700 mb-4">제주참농원 소개</h2>
-          <p className="text-lg leading-relaxed mb-4">
-            따스한 햇살, 제주 참맛 그대로
-          </p>
-          <p className="text-lg leading-relaxed mb-4">
-            제주참농원은 청정 제주의 자연 속에서
+          <h2 className="text-3xl font-bold text-orange-primary mb-4">제주참농원 소개</h2>
+          <p className="text-2xl leading-relaxed text-left">
+            맑은 제주 자연, <strong className="font-bold text-orange-primary">신선함 그대로!</strong>
             <br />
-            가장 <strong className="font-bold text-orange-600">신선한</strong> 과일과 해산물만을 <strong className="font-bold text-orange-600">정성스럽게</strong> 선별해
+            제주참농원은 청정 제주에서 직접 엄선한 과일과 해산물을 <strong className="font-bold text-orange-primary">신선하게 전해드립니다.</strong>
             <br />
-            매일 산지에서 바로, 고객님께 전해드립니다.
-          </p>
-          <p className="text-lg leading-relaxed mb-4">
-            2010년 오픈 이래,
+            하나하나 정성껏 포장하여, 고객님께 제주만의 <strong className="font-bold text-orange-primary">진짜 맛과 감동</strong>을 선물합니다.
             <br />
-            저희는 <strong className="font-bold text-orange-600">신선함과 믿음</strong>을 약속드리며
-            <br />
-            고객 한 분, 한 분께
-            <br />
-            제주만의 <strong className="font-bold text-orange-600">따뜻한 감성과 고급스러움</strong>을 담아
-            <br />
-            <strong className="font-bold text-orange-600">진심</strong>을 전하고 있습니다.
-          </p>
-          <p className="text-lg leading-relaxed">
-            한라봉 한 알, 옥돔 한 마리에도
-            <br />
-            제주의 햇살과 바람, 그리고 저희의 마음을 가득 담았습니다.
-            {/* Slogan Example: "햇살도 바람도 담아, 제주에서 오늘 바로" */}
+            <strong className="font-bold text-orange-primary">믿을 수 있는 품질과 서비스</strong>, 제주참농원에서 직접 경험해보세요!
           </p>
         </section>
 
-        {/* Producer Story Section */}
+        {/* Producer Story Section (Renamed to "제주 프리미엄 특산물 매장" and content updated) */}
         <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8">
-          <h2 className="text-3xl font-bold text-orange-700 mb-4">제주 프리미엄 특산물 매장</h2>
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+          <h2 className="text-3xl font-bold text-orange-primary mb-4">제주 프리미엄 특산물 매장</h2>
+          <div className="flex flex-col md:flex-row items-center md:items-center gap-6">
             {/* Image 6: 제주참농원 대표 */}
-            <div className="relative mb-6 md:mb-0"> {/* Adjusted margin for responsiveness */}
+            <div className="relative mb-6 md:mb-0">
               <img
                 src="https://i.imgur.com/sJPJ4vo.jpg" // 생산자 이미지로 변경
                 alt="제주참농원 대표"
@@ -240,36 +245,21 @@ const App = () => {
               />
               <button
                 onClick={handleListenVoice}
-                className="absolute bottom-2 right-2 p-2 bg-orange-500 text-white rounded-full shadow-md hover:bg-orange-600 transition-colors transform hover:scale-110"
+                className="absolute bottom-2 right-2 p-2 bg-orange-primary text-white rounded-full shadow-md hover:bg-orange-hover transition-colors transform hover:scale-110"
                 aria-label="대표 음성 듣기"
               >
                 <Volume2 size={20} />
               </button>
             </div>
-            <div className="flex-1 text-center md:text-left">
-              <p className="text-lg leading-relaxed mb-4">
-                오늘 수확, 오늘 포장, 오늘 출고
+            <div className="flex-1 text-left">
+              <p className="text-2xl leading-relaxed">
+                <strong className="font-bold text-orange-primary">오늘 수확, 오늘 포장, 오늘 출고!</strong>
                 <br />
-                제주참농원은
+                <strong className="font-bold text-orange-primary">직접 관리하는 품질과 빠른 배송!</strong>
                 <br />
-                제주산 <strong className="font-bold text-orange-600">신선함이 변하지 않도록</strong>
+                <strong className="font-bold text-orange-primary">가장 신선한</strong> 제주산 과일, 해산물, 전통주까지!
                 <br />
-                수확과 동시에 바로 포장해
-                <br />
-                <strong className="font-bold text-orange-600">가장 빠르게</strong> 고객님께 배송합니다.
-              </p>
-              <p className="text-lg leading-relaxed">
-                <strong className="font-bold text-orange-600">대표의 약속, 품질의 자부심</strong>
-                <br />
-                저희 대표가 <strong className="font-bold text-orange-600">직접 상품의 상태와 맛,</strong>
-                <br />
-                <strong className="font-bold text-orange-600">하나하나 정성껏 확인합니다.</strong>
-                <br />
-                오랜 노하우와 양심을 담아
-                <br />
-                <strong className="font-bold text-orange-600">믿고 드실 수 있는 제주 참맛만을</strong>
-                <br />
-                엄선해 전해드립니다.
+                고객님께 <strong className="font-bold text-orange-primary">믿고 선택할 수 있는</strong> 제주 특산물만을 전합니다.
               </p>
             </div>
           </div>
@@ -277,27 +267,27 @@ const App = () => {
 
         {/* Store Information Section */}
         <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8">
-          <h2 className="text-3xl font-bold text-orange-700 mb-4">매장 안내</h2>
-          <ul className="text-lg leading-relaxed space-y-2">
+          <h2 className="text-3xl font-bold text-orange-primary mb-4">매장 안내</h2>
+          <ul className="text-2xl leading-relaxed space-y-2 text-left">
             <li><strong>주소:</strong> 제주특별자치도 제주시 번영로 345, 내트럭하우스 1층</li>
             <li><strong>운영 시간:</strong> 08:30 ~ 19:00 (연중무휴)</li>
             <li><strong>특징:</strong> 방문/예약/픽업 가능</li>
           </ul>
           <button
             onClick={handleViewMap}
-            className="mt-6 px-6 py-3 bg-orange-600 text-white font-bold rounded-full shadow-md hover:bg-orange-700 transition-all flex items-center justify-center transform hover:scale-105"
+            className="mt-6 px-6 py-3 bg-orange-500 text-white font-bold rounded-full shadow-md hover:bg-orange-600 border-2 border-orange-600 transition-all flex items-center justify-center transform hover:scale-105"
           >
-            <MapPin size={24} className="mr-2" /> 지도보기
+            <MapPin size={24} className="mr-2" /> 약도보기
           </button>
         </section>
 
         {/* Product Showcase - Redesigned for CJ Market style */}
         <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8">
-          <h2 className="text-3xl font-bold text-orange-700 mb-6">제주참농원 상품</h2>
+          <h2 className="text-3xl font-bold text-orange-primary mb-6">제주참농원 상품</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {/* Product Card 1: 귤 */}
             <ProductCard
-              imageSrc="https://i.imgur.com/pMIMSaC.jpg" // 새로운 귤 이미지로 변경
+              imageSrc="https://i.imgur.com/pMIMSaC.jpg"
               imageAlt="햇살 가득 제주 참농원 귤"
               name="햇살 가득 제주 참농원 귤"
               description="제주 햇살을 가득 머금은 참농원의 달콤한 귤"
@@ -305,7 +295,7 @@ const App = () => {
 
             {/* Product Card 2: 한라봉 */}
             <ProductCard
-              imageSrc="https://i.imgur.com/03LPOMn.jpg" // 새로운 한라봉 이미지로 변경
+              imageSrc="https://i.imgur.com/03LPOMn.jpg"
               imageAlt="탐스러운 제주 참농원 한라봉"
               name="탐스러운 제주 참농원 한라봉"
               description="제주 햇살을 머금고 자란 참농원이 보장하는 달콤한 한라봉"
@@ -313,7 +303,7 @@ const App = () => {
 
             {/* Product Card 3: 천혜향 */}
             <ProductCard
-              imageSrc="https://i.imgur.com/3WR7gLa.jpg" // 천혜향 천지 이미지 (기존과 동일)
+              imageSrc="https://i.imgur.com/3WR7gLa.jpg"
               imageAlt="하늘이 내린 향기 제주 참농원 천혜향"
               name="하늘이 내린 향기 제주 참농원 천혜향"
               description="하늘이 내린 향기, 참농원이 엄선한 프리미엄 천혜향"
@@ -347,11 +337,11 @@ const App = () => {
 
         {/* Reviews/Social Share Section */}
         <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8 text-center">
-          <h2 className="text-3xl font-bold text-orange-700 mb-6">고객 후기</h2>
-          <p className="text-gray-600 mb-6">
+          <h2 className="text-3xl font-bold text-orange-primary mb-6">고객 후기</h2>
+          <p className="text-2xl leading-relaxed mb-6">
             따뜻한 조명 아래, 고객이 직접 찍은 한라봉 언박싱/식탁 사진처럼 소중한 후기를 남겨주세요!
           </p>
-          <p className="text-gray-600">
+          <p className="text-2xl leading-relaxed">
             고객님들의 실제 후기가 쌓이면 이곳에 첨부될 예정입니다.
           </p>
         </section>
@@ -361,13 +351,13 @@ const App = () => {
       {showRepresentativeMessage && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full text-center relative animate-fade-in-up">
-            <h3 className="text-2xl font-bold text-orange-700 mb-4">제주참농원 대표 인사말</h3>
-            <p className="text-lg leading-relaxed text-gray-700 mb-6">
+            <h3 className="text-2xl font-bold text-orange-primary mb-4">제주참농원 대표 인사말</h3>
+            <p className="text-lg leading-relaxed text-almost-black mb-6">
               "안녕하세요, 제주참농원 대표입니다. 저희는 제주 청정 자연의 선물인 신선한 과일과 해산물을 고객님의 식탁까지 가장 빠르고 정직하게 전해드리기 위해 최선을 다하고 있습니다. 15년간 쌓아온 신뢰를 바탕으로, 앞으로도 변함없이 최고의 품질과 진심을 담아 보답하겠습니다. 제주참농원에 많은 관심과 사랑 부탁드립니다!"
             </p>
             <button
               onClick={() => setShowRepresentativeMessage(false)}
-              className="px-6 py-3 bg-orange-600 text-white font-bold rounded-full shadow-md hover:bg-orange-700 transition-all transform hover:scale-105"
+              className="px-6 py-3 bg-orange-primary text-white font-bold rounded-full shadow-md hover:bg-orange-hover transition-all transform hover:scale-105"
             >
               닫기
             </button>
@@ -385,7 +375,7 @@ const App = () => {
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
-            <h3 className="text-2xl font-bold text-orange-700 mt-4 mb-4">제주참농원 약도</h3>
+            <h3 className="text-2xl font-bold text-orange-primary mt-4 mb-4">제주참농원 약도</h3>
             <img
               src="https://i.imgur.com/kLnlhAZ.jpg"
               alt="제주참농원 약도"
@@ -394,7 +384,7 @@ const App = () => {
             />
             <button
               onClick={() => setShowMapImagePopup(false)}
-              className="px-6 py-3 bg-orange-600 text-white font-bold rounded-full shadow-md hover:bg-orange-700 transition-all transform hover:scale-105"
+              className="px-6 py-3 bg-orange-primary text-white font-bold rounded-full shadow-md hover:bg-orange-hover transition-all transform hover:scale-105"
             >
               닫기
             </button>

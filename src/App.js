@@ -1,434 +1,362 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>제주 특산물 시장 동향 분석</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Warm Neutral with Tangerine Accent -->
-    <!-- Application Structure Plan: A thematic, dashboard-style single-page application. The structure is designed for intuitive exploration, starting with a high-level summary, then diving into consumer reputation (positive vs. negative), popular item trends with interactive filtering by category, and finally purchase channels. This non-linear structure allows users to quickly grasp key insights and then explore areas of interest, which is more user-friendly than a linear report format. -->
-    <!-- Visualization & Content Choices: Report Info -> Overall perception data. Goal -> Inform. Viz -> Doughnut Chart (Chart.js) for simple proportion. Interaction -> None. Justification -> Quick visual summary of consumer sentiment. Report Info -> Online review counts for popular items. Goal -> Compare. Viz -> Interactive Bar Chart (Chart.js). Interaction -> Category filter buttons update chart data. Justification -> Allows users to compare popularity across and within categories, revealing key trends like the dominance of processed black pork and Omegi-tteok. Report Info -> Key trends and issues. Goal -> Organize & Inform. Viz -> Thematic cards and tabbed content blocks. Interaction -> Tabs reveal detailed text. Justification -> Breaks down complex information into digestible, user-controlled chunks. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <style>
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #F5F5F4; /* stone-100 */
-        }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 300px;
-            max-height: 400px;
-        }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 400px;
-            }
-        }
-        .nav-link {
-            transition: color 0.3s, border-bottom-color 0.3s;
-        }
-        .nav-link:hover {
-            color: #F97316; /* orange-500 */
-        }
-        .active-nav {
-            color: #F97316; /* orange-500 */
-            border-bottom: 2px solid #F97316;
-        }
-        .tab-btn {
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .active-tab {
-            background-color: #F97316; /* orange-500 */
-            color: white;
-        }
-    </style>
-</head>
-<body class="text-stone-800">
+import React, { useState, useEffect, useRef } from 'react';
+import Chart from 'chart.js/auto';
 
-    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
-        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex-shrink-0">
-                    <h1 class="text-xl md:text-2xl font-bold text-stone-800">🍊 제주 특산물 시장 대시보드</h1>
-                </div>
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="#summary" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-600">시장 요약</a>
-                        <a href="#reputation" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-600">소비자 평판</a>
-                        <a href="#trends" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-600">인기 품목 트렌드</a>
-                        <a href="#channels" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-600">주요 구매 채널</a>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
+function App() {
+    const reputationChartRef = useRef(null);
+    const reputationChartInstance = useRef(null);
 
-    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    const [activeReputationTab, setActiveReputationTab] = useState('positive');
+    const [activeDessertFilter, setActiveDessertFilter] = useState('all');
+    // activeStrategyIndex state removed as accordion is replaced by distinct cards
 
-        <section id="summary" class="mb-16 scroll-mt-16">
-            <h2 class="text-3xl font-bold text-center mb-4">한눈에 보는 제주 특산물 시장</h2>
-            <p class="text-center text-stone-600 max-w-3xl mx-auto mb-12">
-                본 대시보드는 제주 특산물 시장에 대한 한국 소비자의 인식, 구매 동향, 최신 트렌드를 시각적으로 분석합니다. 전반적으로 '청정 제주' 이미지를 바탕으로 긍정적 평판을 유지하고 있으나, 가격 및 신뢰도 문제는 해결 과제로 남아있습니다. 온라인 시장의 급성장과 '로코노미' 트렌드가 시장의 새로운 활력소가 되고 있습니다.
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="font-bold text-lg mb-2">👍 긍정적 이미지</h3>
-                    <p class="text-stone-600 text-sm">소비자 60%가 '좋다'고 평가. '청정 제주' 이미지가 구매로 연결되며, 88%가 구매 경험 보유.</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="font-bold text-lg mb-2">📈 온라인 급성장</h3>
-                    <p class="text-stone-600 text-sm">온라인 구매 의향 91%. 쿠팡/컬리 등 새벽배송 도입으로 전국 접근성 향상 및 온라인 매출 급증.</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="font-bold text-lg mb-2">💎 고급화 & 다양화</h3>
-                    <p class="text-stone-600 text-sm">'로코노미' 트렌드에 맞춰 고품질 가공식품(고급 초콜릿, 흑돼지 가공품 등) 인기 상승.</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="font-bold text-lg mb-2">⚠️ 신뢰도 문제</h3>
-                    <p class="text-stone-600 text-sm">'바가지요금' 논란과 원산지 허위 표시 사례가 SNS를 통해 확산되며 신뢰도 저해 요인으로 작용.</p>
-                </div>
-            </div>
-        </section>
+    const reputationData = {
+        positive: [
+            { icon: '🌿', title: '청정 제주 이미지', text: '소비자들은 제주산 제품의 신선함과 품질을 신뢰합니다. 긍정적 평판이 구매로 이어집니다.' },
+            { icon: '💖', title: '높은 재구매 의향', text: '여행 후 온라인으로 재구매하는 패턴이 확산되고 있으며, 만족도가 높게 나타납니다.' },
+            { icon: '✨', title: '고급화/차별화 성공', text: '고품질의 프리미엄 디저트가 SNS에서 좋은 반응을 얻으며 시장을 주도합니다.' },
+            { icon: '🎁', title: '선물로서의 가치', text: '가격이 다소 높더라도 품질이 뛰어나면 선물로 제격이라는 인식이 강합니다.' },
+            { icon: '📱', title: 'SNS 바이럴 효과', text: '인스타그램, 유튜브 등 SNS를 통한 긍정적 리뷰와 입소문이 구매를 촉진합니다.' }
+        ],
+        negative: [
+            { icon: '💸', title: '바가지요금 논란', text: '일부 품목의 높은 가격은 소비자 불만의 주요 원인으로, 관광지 바가지 인식이 존재합니다.' },
+            { icon: '❓', title: '원산지 신뢰 문제', text: '수입산을 제주산으로 속여 파는 사례가 발생하여 소비자 신뢰를 저해합니다.' },
+            { icon: '🗣️', title: '부정적 경험 확산', text: '안 좋은 경험은 SNS를 통해 빠르게 공유되어 제주 특산물 전반의 평판에 악영향을 미칠 수 있습니다.' },
+            { icon: '⚖️', title: '가치 증명의 중요성', text: '소비자들은 가격에 합당한 가치(맛, 양, 경험)를 기대하며, 투명한 가격 정책이 중요합니다.' }
+        ]
+    };
 
-        <section id="reputation" class="mb-16 scroll-mt-16">
-            <h2 class="text-3xl font-bold text-center mb-12">빛과 그림자: 소비자 평판 분석</h2>
-            <p class="text-center text-stone-600 max-w-3xl mx-auto mb-12">
-                제주 특산물에 대한 소비자 인식은 매우 긍정적인 동시에 일부 부정적인 경험이 공존합니다. 아래 차트는 전반적인 인식을 보여주며, 탭을 통해 긍정적 요인과 부정적 요인을 각각 자세히 살펴볼 수 있습니다.
-            </p>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-                <div class="lg:col-span-1">
-                    <div class="chart-container h-64 md:h-80 mx-auto">
-                        <canvas id="reputationChart"></canvas>
-                    </div>
-                     <p class="text-center text-xs text-stone-500 mt-2">출처: 2015년 소비자 설문조사</p>
-                </div>
-                <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
-                    <div class="mb-4 border-b border-stone-200">
-                        <nav class="flex -mb-px" id="reputationTabs">
-                            <button data-tab="positive" class="reputation-tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300">
-                                긍정적 평판 요인
-                            </button>
-                            <button data-tab="negative" class="reputation-tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300 ml-8">
-                                부정적 평판 요인
-                            </button>
-                        </nav>
-                    </div>
-                    <div id="reputationContent">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="trends" class="mb-16 scroll-mt-16">
-            <h2 class="text-3xl font-bold text-center mb-12">무엇이 잘 팔릴까? 인기 품목 트렌드</h2>
-            <p class="text-center text-stone-600 max-w-3xl mx-auto mb-12">
-                소비자들이 실제로 많이 찾고 이야기하는 품목은 무엇일까요? 온라인 리뷰 수를 기반으로 한 아래 차트와 카테고리별 분석을 통해 최신 구매 트렌드를 확인해 보세요. 카테고리 버튼을 클릭하면 차트와 설명이 업데이트됩니다.
-            </p>
-            <div class="text-center mb-8">
-                <button data-category="all" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-white shadow-sm hover:bg-stone-100 mx-1 my-1">전체</button>
-                <button data-category="processed" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-white shadow-sm hover:bg-stone-100 mx-1 my-1">가공식품/디저트 🍰</button>
-                <button data-category="livestock" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-white shadow-sm hover:bg-stone-100 mx-1 my-1">축산물 🐷</button>
-                <button data-category="agricultural" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-white shadow-sm hover:bg-stone-100 mx-1 my-1">농산물 🍊</button>
-                <button data-category="fishery" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-white shadow-sm hover:bg-stone-100 mx-1 my-1">수산물 🐟</button>
-            </div>
-            <div class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
-                <div class="chart-container h-80 md:h-96 lg:h-[500px]">
-                    <canvas id="popularityChart"></canvas>
-                </div>
-                <div id="trend-description" class="mt-6 p-4 bg-stone-50 rounded-md text-stone-700">
-                </div>
-            </div>
-        </section>
-
-        <section id="channels" class="scroll-mt-16">
-            <h2 class="text-3xl font-bold text-center mb-12">어디서 구매할까? 주요 구매 채널</h2>
-             <p class="text-center text-stone-600 max-w-3xl mx-auto mb-12">
-                제주 특산물은 전통적인 오프라인 채널과 급성장하는 온라인 채널을 통해 유통됩니다. 소비자들은 목적과 편의에 따라 다양한 채널을 활용하고 있으며, 특히 온라인 플랫폼의 영향력이 커지고 있습니다.
-            </p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                    <div class="text-4xl mb-4">🛒</div>
-                    <h3 class="font-bold text-lg mb-2">온라인 전문몰</h3>
-                    <p class="text-stone-600 text-sm">삼다몰, 이제주몰 등<br>제주 특산물에 특화된 쇼핑몰. 높은 고객 만족도와 지역화폐 사용 가능.</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                    <div class="text-4xl mb-4">🚚</div>
-                    <h3 class="font-bold text-lg mb-2">대형 이커머스</h3>
-                    <p class="text-stone-600 text-sm">쿠팡, 컬리 등<br>새벽/당일 배송 서비스로 신선식품 구매의 패러다임을 바꾸며 전국구 고객 확보.</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                    <div class="text-4xl mb-4">🏪</div>
-                    <h3 class="font-bold text-lg mb-2">전통시장</h3>
-                    <p class="text-stone-600 text-sm">동문시장, 올레시장 등<br>관광객 필수 코스. 현장감과 다양한 품목을 직접 보고 구매하는 재미 제공.</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg shadow-md text-center">
-                   <div class="text-4xl mb-4">✈️</div>
-                    <h3 class="font-bold text-lg mb-2">면세점/기념품샵</h3>
-                    <p class="text-stone-600 text-sm">공항, 관광지 등<br>여행의 마지막 관문. 고급화된 포장의 초콜릿, 디저트류 등 선물용 상품 중심.</p>
-                </div>
-            </div>
-        </section>
-
-    </main>
+    const dessertData = [
+        { id: 1, category: 'traditional', emoji: '🍡', name: '오메기떡', desc: '전통의 재해석. 쫀득한 식감과 다양한 맛으로 젊은 층에게도 인기 폭발. 온라인 재구매율이 높습니다.', tags: ['스테디셀러', '남녀노소', 'SNS인기'] },
+        { id: 2, category: 'bakery', emoji: '🪨', name: '제주돌빵', desc: '현무암 모양의 독특한 비주얼과 특허 기술. 제주의 상징성을 시각적으로 구현하여 선물 가치가 높습니다.', tags: ['비주얼', '특허', '스토리텔링'] },
+        { id: 3, category: 'chocolate', emoji: '🍊', name: '프리미엄 감귤 초콜릿', desc: '고품질 원재료(실제 감귤 사용)와 세련된 개별 포장으로 차별화. "진짜 맛있다"는 리뷰가 많습니다.', tags: ['스테디셀러', '고급화', '수출효자'] },
+        { id: 4, category: 'bakery', emoji: '🍵', name: '말차(녹차) 디저트', desc: '제주산 녹차의 쌉쌀하고 깊은 맛. 케이크, 푸딩, 롤 등 다양한 형태로 카페 트렌드를 선도합니다.', tags: ['MZ세대', '카페트렌드', '고품질원료'] },
+        { id: 5, category: 'chocolate', emoji: '☀️', name: '말린 과일 스낵', desc: '감귤, 한라봉 등 건조 가공 칩. 새콤달콤한 맛과 쫄깃한 식감. 건강 간식 트렌드에 부합합니다.', tags: ['건강지향', '다이어트', '무첨가'] },
+        { id: 6, category: 'bakery', emoji: '🥕', name: '당근 케이크 & 디저트', desc: '제주 당근의 달콤함을 활용한 디저트. 특히 구좌읍을 중심으로 카페 인기 메뉴로 자리매김했습니다.', tags: ['로컬식재료', '카페인기', '웰빙'] },
+        { id: 7, category: 'traditional', emoji: '🥜', name: '우도 땅콩 디저트', desc: '우도 땅콩의 고소함을 담은 아이스크림, 라떼, 과자 등. 제주 방문 시 필수 코스로 인식됩니다.', tags: ['지역명물', '고소한맛', '다양한활용'] },
+        { id: 8, category: 'bakery', emoji: '🍌', name: '제주 바나나 디저트', desc: '새롭게 떠오르는 효자 특산물인 제주산 무농약 바나나를 활용한 신선한 디저트 개발이 시작되었습니다.', tags: ['신규트렌드', '무농약', '잠재력'] },
+        { id: 9, category: 'traditional', emoji: '🍬', name: '귤 양갱 & 귤 젤리', desc: '말랑말랑하고 상큼한 귤 향을 느낄 수 있는 전통 가공 과일 디저트. 꾸준한 인기를 얻고 있습니다.', tags: ['전통', '간편', '상큼'] },
+        { id: 10, category: 'chocolate', emoji: '🍫', name: '감귤 건조과일 초콜릿', desc: '고급 포장의 개별 제품들이 인기. 실제 감귤 건조 과일에 초콜릿을 입힌 프리미엄 디저트입니다.', tags: ['고급화', '선물용', '프리미엄'] }
+    ];
     
-    <footer class="bg-stone-800 text-white mt-16">
-        <div class="container mx-auto py-4 px-5 text-center">
-            <p class="text-stone-400 text-sm">본 페이지는 제공된 '제주 특산물 시장 분석 보고서'를 기반으로 제작된 대화형 데이터 시각화입니다.</p>
-        </div>
-    </footer>
+    const strategyData = [
+        { 
+            title: '1. 차별화된 제품 구성 및 디자인', 
+            content: '인기 디저트들을 조합한 **\'제주 디저트 종합 선물세트\'**를 기획하세요. 단순한 나열이 아닌, 테마(예: \'제주의 사계절 맛\', \'MZ세대 취향저격 세트\')를 부여하는 것이 중요합니다. 제주의 자연과 감성을 담은 **고급스러운 패키징**과 각 디저트에 얽힌 **스토리텔링**을 더해 선물의 가치를 극대화하세요.',
+            icon: '📦', color: 'border-orange-500' // Added color for visual distinction
+        },
+        { 
+            title: '2. 온라인 판매 및 마케팅 집중', 
+            content: '자사몰 구축과 함께 쿠팡, 컬리 등 **대형 이커머스 플랫폼 입점**을 적극 고려하여 전국 판매망을 확보해야 합니다. 인스타그램, 유튜브 등에서 매력적인 비주얼 콘텐츠로 **바이럴 마케팅**을 펼치고, 정기적으로 제주 디저트를 배송하는 **구독 서비스** 모델로 충성 고객을 만드세요.',
+            icon: '🌐', color: 'border-green-500' // Added color for visual distinction
+        },
+        { 
+            title: '3. 품질 및 신뢰도 관리', 
+            content: '**원산지 투명성**은 기본입니다. 제주산 원재료 사용을 명확히 하고, 생산자 정보를 공개하여 신뢰를 쌓으세요. **HACCP 등 식품 안전 인증**을 통해 품질을 증명하고, 온라인 리뷰와 고객 문의에 신속하고 진정성 있게 대응하여 **긍정적인 고객 관계**를 구축하는 것이 장기적인 성공의 열쇠입니다.',
+            icon: '✅', color: 'border-blue-500' // Added color for visual distinction
+        }
+    ];
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            
-            const reputationData = {
-                positive: {
-                    title: '✅ 긍정적 평판 요인',
-                    points: [
-                        { icon: '🌿', text: "'청정 제주'라는 강력한 브랜드 이미지" },
-                        { icon: '🏆', text: "삼다몰 등 전문 쇼핑몰의 높은 고객 만족도 (6년 연속 1위)" },
-                        { icon: '🔄', text: "여행 후 온라인 재구매 패턴 확산" },
-                        { icon: '💖', text: "고급화된 가공식품(프루낵 초콜릿 등)에 대한 높은 만족도" },
-                        { icon: '👍', text: "다금바리 등 '비싸지만 가치있다'는 '가심비' 품목 존재" }
-                    ]
-                },
-                negative: {
-                    title: '⚠️ 부정적 평판 요인',
-                    points: [
-                        { icon: '💸', text: "해산물, 식사 메뉴 등에서 불거진 '바가지요금' 논란" },
-                        { icon: '❓', text: "수입산을 제주산으로 속여 파는 원산지 허위 표시 사례" },
-                        { icon: '📉', text: "가격에 비해 양이 부족하다는 소비자 불만" },
-                        { icon: '🗣️', text: "SNS를 통한 부정적 경험의 빠른 확산" },
-                        { icon: '🤔', text: "프리미엄 이미지로 인한 전반적인 높은 가격대에 대한 부담" }
-                    ]
-                }
-            };
-
-            const trendData = {
-                all: {
-                    description: "전체적으로 제주 흑돼지 가공품과 오메기떡이 온라인에서 압도적인 인기를 보입니다. 전통적인 농수산물보다 편리하고 특색있는 가공식품에 대한 선호도가 높게 나타납니다.",
-                    items: {
-                        labels: ['흑돼지 양념구이', '오메기떡', '하우스 감귤', '흑돼지 두루치기', '한라봉', '고등어', '감귤초콜릿', '갈치'],
-                        data: [36000, 7000, 8910, 5000, 4061, 1945, 207, 898]
-                    }
-                },
-                processed: {
-                    description: "오메기떡이 전통 간식의 현대화에 성공하며 폭발적인 인기를 얻고 있습니다. 기존의 저가형 초콜릿에서 벗어나, 실제 과일을 사용한 고급 초콜릿과 특색있는 디저트(제주돌빵 등)가 새로운 트렌드로 부상하고 있습니다. 흑돼지 육포, 족발 등 축산 가공품도 강세입니다.",
-                    items: {
-                        labels: ['오메기떡', '흑돼지 양념구이', '흑돼지 두루치기', '감귤초콜릿', '흑돼지 껍데기', '흑돼지 육포'],
-                        data: [7000, 36000, 5000, 207, 2038, 121]
-                    }
-                },
-                livestock: {
-                    description: "제주 흑돼지는 단순 정육을 넘어 양념육, 두루치기, 껍데기, 육포 등 다양한 가공 형태로 큰 인기를 끌고 있습니다. 이는 소비자의 편의성을 높이고 부가가치를 창출한 성공적인 다각화 사례입니다.",
-                    items: {
-                        labels: ['흑돼지 양념구이', '흑돼지 두루치기', '흑돼지 껍데기', '흑돼지 뒷다리살', '흑돼지 육포'],
-                        data: [36000, 5000, 2038, 1121, 121]
-                    }
-                },
-                agricultural: {
-                    description: "감귤, 한라봉 등 전통적인 감귤류는 여전히 선물용으로 높은 수요를 보입니다. 특히 온라인을 통한 산지 직송 구매가 활발합니다. 최근에는 무농약 바나나, 애플망고 등 새로운 아열대 과일이 주목받고 있습니다.",
-                    items: {
-                        labels: ['하우스 감귤', '한라봉', '황금향', '레드향', '천혜향'],
-                        data: [8910, 4061, 1500, 1200, 1100]
-                    }
-                },
-                fishery: {
-                    description: "고등어와 갈치는 제주를 대표하는 수산물로, 선물세트 형태로 꾸준한 인기를 유지하고 있습니다. 옥돔, 참조기 또한 인기 품목입니다. 다만, 일부 품목의 가격 논란은 해결해야 할 과제입니다.",
-                    items: {
-                        labels: ['고등어', '갈치', '옥돔', '참조기'],
-                        data: [1945, 898, 500, 450]
-                    }
-                }
-            };
-
-            const reputationCtx = document.getElementById('reputationChart').getContext('2d');
-            const reputationChart = new Chart(reputationCtx, {
+    useEffect(() => {
+        if (reputationChartRef.current) {
+            if (reputationChartInstance.current) {
+                reputationChartInstance.current.destroy();
+            }
+            reputationChartInstance.current = new Chart(reputationChartRef.current, {
                 type: 'doughnut',
                 data: {
-                    labels: ['좋다', '보통', '나쁘다'],
+                    labels: ['매우 긍정적', '보통', '부정적/개선필요'],
                     datasets: [{
-                        label: '제주 특산물 이미지',
-                        data: [60, 36, 3],
-                        backgroundColor: [
-                            'rgba(52, 211, 153, 0.7)', // green-400
-                            'rgba(251, 191, 36, 0.7)', // amber-400
-                            'rgba(239, 68, 68, 0.7)'   // red-500
-                        ],
-                        borderColor: [
-                            'rgba(5, 150, 105, 1)',
-                            'rgba(217, 119, 6, 1)',
-                            'rgba(185, 28, 28, 1)'
-                        ],
-                        borderWidth: 1
+                        data: [75, 20, 5],
+                        backgroundColor: ['#22c55e', '#facc15', '#f87171'],
+                        borderColor: '#fdfcfb',
+                        borderWidth: 4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    cutout: '60%',
                     plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: '제주 특산물 전반적 인식'
-                        }
+                        legend: { display: false },
+                        title: { display: true, text: '소비자 평판 요약 (2025년 추정)', font: { size: 16 } }
                     }
                 }
             });
+        }
+        return () => {
+            if (reputationChartInstance.current) {
+                reputationChartInstance.current.destroy();
+            }
+        };
+    }, []);
 
-            const popularityCtx = document.getElementById('popularityChart').getContext('2d');
-            const popularityChart = new Chart(popularityCtx, {
-                type: 'bar',
-                data: {
-                    labels: trendData.all.items.labels,
-                    datasets: [{
-                        label: '온라인 상품 리뷰 수 (추정)',
-                        data: trendData.all.items.data,
-                        backgroundColor: 'rgba(249, 115, 22, 0.6)', // orange-500
-                        borderColor: 'rgba(249, 115, 22, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    if (value >= 1000) {
-                                        return (value / 1000) + 'k';
-                                    }
-                                    return value;
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        title: {
-                            display: true,
-                            text: '주요 특산물 온라인 인기도 (리뷰 수 기준)',
-                            font: {
-                                size: 16
-                            }
-                        },
-                         tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.x !== null) {
-                                        label += new Intl.NumberFormat('ko-KR').format(context.parsed.x) + '개';
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    }
+    const handleReputationTabClick = (tab) => {
+        setActiveReputationTab(tab);
+    };
+
+    const handleDessertFilterClick = (filter) => {
+        setActiveDessertFilter(filter);
+    };
+
+    // handleStrategyAccordionClick removed
+
+    const filteredDesserts = activeDessertFilter === 'all' 
+        ? dessertData 
+        : dessertData.filter(d => d.category === activeDessertFilter);
+
+    const navLinks = [
+        { id: 'trends', text: '시장 트렌드' },
+        { id: 'reputation', text: '소비자 분석' },
+        { id: 'products', text: '인기 디저트' },
+        { id: 'strategy', text: '사업 전략' },
+    ];
+
+    const [activeNavLink, setActiveNavLink] = useState('trends');
+
+    useEffect(() => {
+        const observerOptions = {
+            root: null,
+            rootMargin: '-50% 0px -50% 0px',
+            threshold: 0,
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setActiveNavLink(entry.target.id);
                 }
             });
+        }, observerOptions);
 
-            function updateTrendContent(category) {
-                const data = trendData[category];
-                document.getElementById('trend-description').innerHTML = `<p>${data.description}</p>`;
-                
-                popularityChart.data.labels = data.items.labels;
-                popularityChart.data.datasets[0].data = data.items.data;
-                popularityChart.update();
+        const sections = document.querySelectorAll('section');
+        sections.forEach(section => observer.observe(section));
 
-                document.querySelectorAll('.tab-btn').forEach(btn => {
-                    btn.classList.remove('active-tab');
-                    if (btn.dataset.category === category) {
-                        btn.classList.add('active-tab');
+        return () => {
+            sections.forEach(section => observer.unobserve(section));
+        };
+    }, []);
+
+    const scrollToSection = (id) => {
+        document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    };
+
+    return (
+        <div className="text-stone-800">
+            <style>
+                {`
+                body {
+                    font-family: 'Noto Sans KR', sans-serif;
+                    background-color: #fdfcfb;
+                }
+                .chart-container {
+                    position: relative;
+                    width: 100%;
+                    max-width: 400px;
+                    margin-left: auto;
+                    margin-right: auto;
+                    height: 300px;
+                    max-height: 350px;
+                }
+                @media (min-width: 768px) {
+                    .chart-container {
+                        height: 350px;
                     }
-                });
-            }
-            
-            document.querySelectorAll('.tab-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const category = button.dataset.category;
-                    updateTrendContent(category);
-                });
-            });
+                }
+                .nav-link {
+                    transition: color 0.3s, border-bottom-color 0.3s;
+                }
+                .active-nav {
+                    color: #F97316;
+                    border-bottom: 2px solid #F97316;
+                }
+                .filter-btn {
+                    transition: all 0.3s;
+                }
+                .active-filter {
+                    background-color: #F97316;
+                    color: white;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+                }
+                .dessert-card {
+                    transition: transform 0.3s, box-shadow 0.3s;
+                }
+                .dessert-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+                }
+                `}
+            </style>
 
-            function updateReputationContent(tab) {
-                const content = reputationData[tab];
-                const container = document.getElementById('reputationContent');
-                
-                let html = `<h3 class="font-bold text-lg mb-4">${content.title}</h3><ul class="space-y-3">`;
-                content.points.forEach(point => {
-                    html += `<li class="flex items-start"><span class="mr-3 text-xl">${point.icon}</span><span class="text-stone-600">${point.text}</span></li>`;
-                });
-                html += `</ul>`;
-                
-                container.innerHTML = html;
+            <header className="bg-white/90 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+                <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-16">
+                        <div className="flex-shrink-0">
+                            <h1 className="text-xl md:text-2xl font-bold text-stone-800">🎁 제주 디저트 선물 사업 대시보드</h1>
+                        </div>
+                        <div className="hidden md:block">
+                            <div className="ml-10 flex items-baseline space-x-4">
+                                {navLinks.map((link) => (
+                                    <button
+                                        key={link.id}
+                                        onClick={() => scrollToSection(link.id)}
+                                        className={`nav-link px-3 py-2 rounded-md text-sm font-medium ${activeNavLink === link.id ? 'active-nav' : 'text-stone-600'}`}
+                                    >
+                                        {link.text}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </header>
 
-                document.querySelectorAll('.reputation-tab-btn').forEach(btn => {
-                    btn.classList.remove('text-orange-600', 'border-orange-600');
-                    btn.classList.add('text-stone-500', 'border-transparent');
-                    if (btn.dataset.tab === tab) {
-                        btn.classList.add('text-orange-600', 'border-orange-600');
-                        btn.classList.remove('text-stone-500', 'border-transparent');
-                    }
-                });
-            }
+            <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
 
-            document.querySelectorAll('.reputation-tab-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const tab = button.dataset.tab;
-                    updateReputationContent(tab);
-                });
-            });
+                <section id="trends" className="mb-16 scroll-mt-16 text-center">
+                    <h2 className="text-3xl font-bold mb-4">성장하는 제주 디저트 시장의 3대 핵심 트렌드</h2>
+                    <p className="text-center text-stone-600 max-w-3xl mx-auto mb-12">
+                        2024-2025년 현재, 제주 디저트 시장은 기회로 가득 차 있습니다. 성공적인 사업을 위해 반드시 알아야 할 세 가지 핵심 동향을 확인하세요.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-orange-400">
+                            <div className="text-4xl mb-4">💎</div>
+                            <h3 className="font-bold text-xl mb-2">고급화 & 프리미엄화</h3>
+                            <p className="text-stone-600 text-sm">과거 저가형 시장에서 벗어나, 고품질 원재료와 특별한 경험을 주는 프리미엄 디저트가 시장을 주도합니다.</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-green-400">
+                            <div className="text-4xl mb-4">🌿</div>
+                            <h3 className="font-bold text-xl mb-2">다양화 & 로코노미</h3>
+                            <p className="text-stone-600 text-sm">감귤 외 제주 고유 식재료(말차, 우도 땅콩, 당근 등)를 활용한 독창적인 로컬 디저트가 젊은 층에 인기입니다.</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-lg shadow-lg border-t-4 border-blue-400">
+                            <div className="text-4xl mb-4">🚚</div>
+                            <h3 className="font-bold text-xl mb-2">온라인 유통 확장</h3>
+                            <p className="text-stone-600 text-sm">쿠팡, 컬리의 새벽/하루배송 도입으로 전국 어디서든 제주 디저트를 쉽게 접할 수 있게 되어 온라인 선물 시장이 급성장했습니다.</p>
+                        </div>
+                    </div>
+                </section>
 
-            const navLinks = document.querySelectorAll('.nav-link');
-            const sections = document.querySelectorAll('section');
+                <section id="reputation" className="mb-16 scroll-mt-16">
+                    <h2 className="text-3xl font-bold text-center mb-12">소비자 마음 엿보기: 기회와 위협</h2>
+                    <p className="text-center text-stone-600 max-w-3xl mx-auto mb-12">
+                        소비자들은 제주 특산물을 매우 긍정적으로 평가하지만, 일부 부정적인 이슈에 민감하게 반응합니다. 성공적인 사업을 위해서는 강점을 극대화하고 약점을 보완해야 합니다.
+                    </p>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                        <div className="bg-white p-6 rounded-lg shadow-md">
+                            <div className="mb-4 border-b border-stone-200">
+                                <nav className="flex -mb-px" id="reputationTabs">
+                                    <button 
+                                        data-tab="positive" 
+                                        onClick={() => handleReputationTabClick('positive')}
+                                        className={`reputation-tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeReputationTab === 'positive' ? 'text-orange-500 border-orange-500' : 'text-stone-500 border-transparent hover:text-stone-700 hover:border-stone-300'}`}
+                                    >
+                                        👍 강점 (기회 요인)
+                                    </button>
+                                    <button 
+                                        data-tab="negative" 
+                                        onClick={() => handleReputationTabClick('negative')}
+                                        className={`reputation-tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ml-8 ${activeReputationTab === 'negative' ? 'text-orange-500 border-orange-500' : 'text-stone-500 border-transparent hover:text-stone-700 hover:border-stone-300'}`}
+                                    >
+                                        👎 약점 (위협 요인)
+                                    </button>
+                                </nav>
+                            </div>
+                            <div id="reputationContent" className="min-h-[250px]">
+                                <ul className="space-y-4">
+                                    {reputationData[activeReputationTab].map((item, index) => (
+                                        <li key={index} className="flex items-start">
+                                            <span className="text-2xl mr-4">{item.icon}</span>
+                                            <div>
+                                                <h4 className="font-bold">{item.title}</h4>
+                                                <p className="text-sm text-stone-600">{item.text}</p>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                        <div className="lg:order-first">
+                            <div className="chart-container">
+                                <canvas ref={reputationChartRef}></canvas>
+                            </div>
+                            <p className="text-center text-xs text-stone-500 mt-2">소비자 인식 요약 (2025년 추정)</p>
+                        </div>
+                    </div>
+                </section>
 
-            window.addEventListener('scroll', () => {
-                let current = '';
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    if (pageYOffset >= sectionTop - 80) {
-                        current = section.getAttribute('id');
-                    }
-                });
+                <section id="products" className="mb-16 scroll-mt-16">
+                    <h2 className="text-3xl font-bold text-center mb-12">어떤 디저트를 담을까? 인기 품목 탐색</h2>
+                    <p className="text-center text-stone-600 max-w-3xl mx-auto mb-12">
+                        선물 패키지의 성공은 어떤 제품을 담느냐에 달려있습니다. 현재 시장에서 가장 인기 있는 디저트들을 카테고리별로 살펴보고 사업 아이템에 대한 영감을 얻어보세요.
+                    </p>
+                    <div className="flex justify-center flex-wrap gap-2 mb-8">
+                        <button 
+                            className={`filter-btn px-4 py-2 rounded-full text-sm font-medium bg-white shadow-sm ${activeDessertFilter === 'all' ? 'active-filter' : 'hover:bg-stone-100'}`} 
+                            onClick={() => handleDessertFilterClick('all')}
+                        >
+                            전체보기
+                        </button>
+                        <button 
+                            className={`filter-btn px-4 py-2 rounded-full text-sm font-medium bg-white shadow-sm ${activeDessertFilter === 'traditional' ? 'active-filter' : 'hover:bg-stone-100'}`} 
+                            onClick={() => handleDessertFilterClick('traditional')}
+                        >
+                            전통 간식
+                        </button>
+                        <button 
+                            className={`filter-btn px-4 py-2 rounded-full text-sm font-medium bg-white shadow-sm ${activeDessertFilter === 'bakery' ? 'active-filter' : 'hover:bg-stone-100'}`} 
+                            onClick={() => handleDessertFilterClick('bakery')}
+                        >
+                            베이커리 & 비주얼
+                        </button>
+                        <button 
+                            className={`filter-btn px-4 py-2 rounded-full text-sm font-medium bg-white shadow-sm ${activeDessertFilter === 'chocolate' ? 'active-filter' : 'hover:bg-stone-100'}`} 
+                            onClick={() => handleDessertFilterClick('chocolate')}
+                        >
+                            초콜릿 & 스낵
+                        </button>
+                    </div>
+                    <div id="dessert-gallery" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {filteredDesserts.map(dessert => (
+                            <div key={dessert.id} className="dessert-card bg-white rounded-lg shadow-md p-5 flex flex-col">
+                                <div className="text-5xl mb-4 text-center">{dessert.emoji}</div>
+                                <h3 className="text-xl font-bold mb-2 text-center">{dessert.name}</h3>
+                                <p className="text-stone-600 text-sm mb-4 flex-grow">{dessert.desc}</p>
+                                <div className="text-xs text-center">
+                                    {dessert.tags.map((tag, tagIndex) => (
+                                        <span key={tagIndex} className="inline-block bg-stone-100 text-stone-700 rounded-full px-3 py-1 mr-1 mb-1">#{tag}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
 
-                navLinks.forEach(link => {
-                    link.classList.remove('active-nav');
-                    if (link.getAttribute('href').includes(current)) {
-                        link.classList.add('active-nav');
-                    }
-                });
-            });
+                <section id="strategy" className="scroll-mt-16">
+                    <h2 className="text-3xl font-bold text-center mb-12">성공을 위한 3가지 핵심 사업 전략</h2>
+                    <p className="text-center text-stone-600 max-w-3xl mx-auto mb-12">
+                        시장 분석을 바탕으로, 성공적인 제주 디저트 선물 패키지 사업을 위한 세 가지 핵심 전략을 제안합니다. 각 전략을 클릭해서 자세한 내용을 확인하세요.
+                    </p>
+                    <div id="strategy-cards" className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                        {strategyData.map((item, index) => (
+                            <div key={index} className={`bg-white rounded-lg shadow-lg p-6 border-t-8 ${item.color} flex flex-col items-center text-center`}>
+                                <div className="text-5xl mb-4">{item.icon}</div>
+                                <h3 className="font-bold text-xl mb-3">{item.title}</h3>
+                                <p className="text-stone-700 text-sm">{item.content}</p>
+                            </div>
+                        ))}
+                    </div>
+                </section>
 
-            navLinks.forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                });
-            });
+            </main>
 
-            updateTrendContent('all');
-            updateReputationContent('positive');
-        });
-    </script>
+            <footer className="bg-stone-800 text-white mt-16">
+                <div className="container mx-auto py-4 px-5 text-center">
+                    <p className="text-stone-400 text-sm">본 대시보드는 '제주 디저트 선물 패키지 사업을 위한 통합 시장 분석' 보고서를 기반으로 제작되었습니다.</p>
+                </div>
+            </footer>
+        </div>
+    );
+}
 
-</body>
-</html>
+export default App;

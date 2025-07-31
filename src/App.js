@@ -1,394 +1,434 @@
-import React, { useState, useEffect } from 'react';
-import { MapPin, Package, Volume2, ChevronRight, ChevronLeft, Leaf, ShoppingBag, Store, Box, Star } from 'lucide-react'; // Added new icons
-
-// ProductCard Component for reusable product display
-const ProductCard = ({ imageSrc, imageAlt, name, description }) => {
-  const [isPackagingTooltipVisible, setIsPackagingTooltipVisible] = useState(false); // Local state for tooltip
-
-  return (
-    <div className="relative bg-white rounded-xl shadow-md overflow-hidden group border border-orange-100 hover:shadow-lg transition-shadow duration-300">
-      {/* Product Image */}
-      <img
-        src={imageSrc}
-        alt={imageAlt}
-        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-        onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/cccccc/333333?text=Image+Not+Found"; }} // Fallback for broken images
-      />
-      <div className="p-4">
-        {/* Product Name */}
-        <h3 className="text-xl font-semibold text-gray-900 mb-1 leading-tight">{name}</h3>
-        {/* Product Description */}
-        <p className="text-gray-600 text-sm mb-2">{description}</p>
-      </div>
-      {/* Packaging Info Tooltip */}
-      <div
-        className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md cursor-pointer"
-        onMouseEnter={() => setIsPackagingTooltipVisible(true)}
-        onMouseLeave={() => setIsPackagingTooltipVisible(false)}
-      >
-        <Package size={20} className="text-gray-600" />
-        {isPackagingTooltipVisible && (
-          <div className="absolute top-full right-0 mt-2 p-3 bg-gray-800 text-white text-sm rounded-lg shadow-lg w-48 z-10">
-            <p>신선도 유지를 위한 개별 포장 및 에어캡 완충 포장</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Main App component
-const App = () => {
-  // State for managing the current image index in the hero carousel
-  const [currentHeroImageIndex, setCurrentHeroImageIndex] = useState(0);
-  // State for managing the visibility of the representative's message popup
-  const [showRepresentativeMessage, setShowRepresentativeMessage] = useState(false);
-  // State for managing the visibility of the map image popup
-  const [showMapImagePopup, setShowMapImagePopup] = useState(false);
-
-
-  // Array of hero images for the carousel (updated to only 3 images)
-  const heroImages = [
-    {
-      // 새로운 귤 이미지로 교체
-      src: "https://i.imgur.com/i1ZwTNm.jpg",
-      alt: "탐스러운 제주 감귤"
-    },
-    {
-      // 기존 한라봉 이미지
-      src: "https://i.imgur.com/O7U1kDm.jpg",
-      alt: "싱싱한 제주 한라봉"
-    },
-    {
-      // 기존 천혜향 천지 이미지
-      src: "https://i.imgur.com/3WR7gLa.jpg",
-      alt: "천혜향이 가득한 제주 농원 풍경"
-    },
-  ];
-
-  // Effect for auto-advancing the hero image carousel
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentHeroImageIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
-    }, 5000); // Change image every 5 seconds
-    return () => clearInterval(interval); // Clean up the interval on component unmount
-  }, [heroImages.length]);
-
-  // Function to navigate to the previous image in the carousel
-  const goToPreviousHeroImage = () => {
-    setCurrentHeroImageIndex((prevIndex) => (prevIndex - 1 + heroImages.length) % heroImages.length);
-  };
-
-  // Function to navigate to the next image in the carousel
-  const goToNextHeroImage = () => {
-    setCurrentHeroImageIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
-  };
-
-  // Handler for the "View Map" button
-  const handleViewMap = () => {
-    setShowMapImagePopup(true); // Show the map image popup
-  };
-
-  // Function to show a custom message box instead of alert()
-  const showCustomMessageBox = (title, message) => {
-    const messageBox = document.createElement('div');
-    messageBox.className = 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50';
-    messageBox.innerHTML = `
-      <div class="bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full text-center relative animate-fade-in-up">
-        <h3 class="text-2xl font-bold text-orange-700 mb-4">${title}</h3>
-        <p class="text-lg leading-relaxed text-gray-700 mb-6">${message}</p>
-        <button class="px-6 py-3 bg-orange-600 text-white font-bold rounded-full shadow-md hover:bg-orange-700 transition-all transform hover:scale-105" onclick="this.closest('.fixed').remove()">확인</button>
-      </div>
-    `;
-    document.body.appendChild(messageBox);
-  };
-
-  // Handler for the "Listen to Voice" icon
-  const handleListenVoice = () => {
-    showCustomMessageBox('대표 음성 안내', '안녕하세요, 제주참농원 대표입니다. 직접 정성껏 관리하고 있습니다.');
-  };
-
-  return (
-    <div className="min-h-screen bg-[#FFF8F0] font-['Pretendard'] text-almost-black"> {/* Changed main background */}
-      {/* Tailwind CSS Script - Always include this for Tailwind to work */}
-      <script src="https://cdn.tailwindcss.com"></script>
-      {/* Tailwind Config for Custom Colors */}
-      <script>
-        {`
-          tailwind.config = {
-            theme: {
-              extend: {
-                colors: {
-                  'cream-warm': '#FFF8F0',
-                  'cream-light-beige': '#FFF6EA',
-                  'orange-primary': '#FF7F00', // Darker orange (not used directly in new button style)
-                  'orange-hover': '#E67300',   // Darker hover orange (not used directly in new button style)
-                  'almost-black': '#222',
-                }
-              }
-            }
-          }
-        `}
-      </script>
-      {/* Pretendard Font Import and Dancing Script */}
-      <style>
-        {`
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
-
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제주 특산물 시장 동향 분석</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral with Tangerine Accent -->
+    <!-- Application Structure Plan: A thematic, dashboard-style single-page application. The structure is designed for intuitive exploration, starting with a high-level summary, then diving into consumer reputation (positive vs. negative), popular item trends with interactive filtering by category, and finally purchase channels. This non-linear structure allows users to quickly grasp key insights and then explore areas of interest, which is more user-friendly than a linear report format. -->
+    <!-- Visualization & Content Choices: Report Info -> Overall perception data. Goal -> Inform. Viz -> Doughnut Chart (Chart.js) for simple proportion. Interaction -> None. Justification -> Quick visual summary of consumer sentiment. Report Info -> Online review counts for popular items. Goal -> Compare. Viz -> Interactive Bar Chart (Chart.js). Interaction -> Category filter buttons update chart data. Justification -> Allows users to compare popularity across and within categories, revealing key trends like the dominance of processed black pork and Omegi-tteok. Report Info -> Key trends and issues. Goal -> Organize & Inform. Viz -> Thematic cards and tabbed content blocks. Interaction -> Tabs reveal detailed text. Justification -> Breaks down complex information into digestible, user-controlled chunks. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
         body {
-          font-family: 'Pretendard', sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #F5F5F4; /* stone-100 */
         }
-
-        .font-dancing-script {
-          font-family: 'Dancing Script', cursive;
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
         }
-
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
         }
-        @keyframes slideInUp {
-          from { transform: translateY(20px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
         }
-        .animate-fade-in {
-          animation: fadeIn 0.5s ease-out forwards;
+        .nav-link:hover {
+            color: #F97316; /* orange-500 */
         }
-        .animate-fade-in-up {
-          animation: slideInUp 0.5s ease-out forwards;
+        .active-nav {
+            color: #F97316; /* orange-500 */
+            border-bottom: 2px solid #F97316;
         }
-        `}
-      </style>
+        .tab-btn {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .active-tab {
+            background-color: #F97316; /* orange-500 */
+            color: white;
+        }
+    </style>
+</head>
+<body class="text-stone-800">
 
-      {/* Header Section */}
-      <header className="relative w-full overflow-hidden rounded-t-3xl rounded-b-3xl shadow-xl">
-        {/* Hero Image Carousel */}
-        <div className="relative h-[30vh] md:h-[40vh] lg:h-[50vh]"> {/* Adjusted height for responsiveness */}
-          {heroImages.map((image, index) => (
-            <img
-              key={index}
-              src={image.src}
-              alt={image.alt}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
-                index === currentHeroImageIndex ? 'opacity-100' : 'opacity-0'
-              }`}
-              onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/1200x600/cccccc/333333?text=Image+Not+Found"; }}
-            />
-          ))}
-          {/* Carousel Navigation Buttons */}
-          <button
-            onClick={goToPreviousHeroImage}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black bg-opacity-40 text-white rounded-full hover:bg-opacity-60 transition-all focus:outline-none focus:ring-2 focus:ring-white"
-            aria-label="Previous image"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <button
-            onClick={goToNextHeroImage}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black bg-opacity-40 text-white rounded-full hover:bg-opacity-60 transition-all focus:outline-none focus:ring-2 focus:ring-white"
-            aria-label="Next image"
-          >
-            <ChevronRight size={24} />
-          </button>
-          {/* Carousel Indicators */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2">
-            {heroImages.map((_, index) => (
-              <button
-                key={index}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentHeroImageIndex ? 'bg-white scale-125' : 'bg-gray-400 bg-opacity-70'
-                }`}
-                onClick={() => setCurrentHeroImageIndex(index)}
-                aria-label={`Go to image ${index + 1}`}
-              />
-            ))}
-          </div>
-        </div>
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl md:text-2xl font-bold text-stone-800">🍊 제주 특산물 시장 대시보드</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#summary" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-600">시장 요약</a>
+                        <a href="#reputation" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-600">소비자 평판</a>
+                        <a href="#trends" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-600">인기 품목 트렌드</a>
+                        <a href="#channels" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-600">주요 구매 채널</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
 
-        {/* Overlay Content - Centered */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-white text-center">
-          <h1 className="text-6xl md:text-8xl font-extrabold drop-shadow-lg mb-2">
-            <span className="font-dancing-script italic">ChamFarm</span>
-          </h1>
-        </div>
-      </header>
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
 
-      <main className="container mx-auto px-4 py-8 md:py-12">
-        {/* About Section */}
-        <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8 text-center">
-          <div className="flex items-center mb-2 justify-center">
-            <Leaf size={28} className="text-orange-primary" />
-            <h2 className="font-bold text-3xl text-orange-primary ml-3">제주참농원 소개</h2>
-          </div>
-          <p className="text-2xl leading-relaxed">
-            맑은 제주 자연, <span className="text-orange-500 font-bold">신선함 그대로!</span>
-            <br />
-            제주참농원은 청정 제주에서 직접 엄선한 과일과 해산물을 <span className="text-orange-500 font-bold">신선하게 전해드립니다.</span>
-            <br />
-            하나하나 정성껏 포장하여, 고객님께 제주만의 <span className="text-orange-500 font-bold">진짜 맛과 감동</span>을 선물합니다.
-            <br />
-            <span className="text-orange-500 font-bold">믿을 수 있는 품질과 서비스</span>, 제주참농원에서 직접 경험해보세요!
-          </p>
-        </section>
-
-        {/* Producer Story Section (Renamed to "제주 프리미엄 특산물 매장" and content updated) */}
-        <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8 text-center">
-          <div className="flex items-center mb-2 justify-center">
-            <ShoppingBag size={28} className="text-orange-primary" />
-            <h2 className="font-bold text-3xl text-orange-primary ml-3">제주 프리미엄 특산물 매장</h2>
-          </div>
-          <div className="flex flex-col items-center gap-6 justify-center">
-            <p className="text-2xl leading-relaxed">
-              <span className="text-orange-500 font-bold">오늘 수확, 오늘 포장, 오늘 출고!</span>
-              <br />
-              <span className="text-orange-500 font-bold">직접 관리하는 품질과 빠른 배송!</span>
-              <br />
-              <span className="text-orange-500 font-bold">가장 신선한</span> 제주산 과일, 해산물, 전통주까지!
-              <br />
-              고객님께 <span className="text-orange-500 font-bold">믿고 선택할 수 있는</span> 제주 특산물만을 전합니다.
+        <section id="summary" class="mb-16 scroll-mt-16">
+            <h2 class="text-3xl font-bold text-center mb-4">한눈에 보는 제주 특산물 시장</h2>
+            <p class="text-center text-stone-600 max-w-3xl mx-auto mb-12">
+                본 대시보드는 제주 특산물 시장에 대한 한국 소비자의 인식, 구매 동향, 최신 트렌드를 시각적으로 분석합니다. 전반적으로 '청정 제주' 이미지를 바탕으로 긍정적 평판을 유지하고 있으나, 가격 및 신뢰도 문제는 해결 과제로 남아있습니다. 온라인 시장의 급성장과 '로코노미' 트렌드가 시장의 새로운 활력소가 되고 있습니다.
             </p>
-          </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="font-bold text-lg mb-2">👍 긍정적 이미지</h3>
+                    <p class="text-stone-600 text-sm">소비자 60%가 '좋다'고 평가. '청정 제주' 이미지가 구매로 연결되며, 88%가 구매 경험 보유.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="font-bold text-lg mb-2">📈 온라인 급성장</h3>
+                    <p class="text-stone-600 text-sm">온라인 구매 의향 91%. 쿠팡/컬리 등 새벽배송 도입으로 전국 접근성 향상 및 온라인 매출 급증.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="font-bold text-lg mb-2">💎 고급화 & 다양화</h3>
+                    <p class="text-stone-600 text-sm">'로코노미' 트렌드에 맞춰 고품질 가공식품(고급 초콜릿, 흑돼지 가공품 등) 인기 상승.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="font-bold text-lg mb-2">⚠️ 신뢰도 문제</h3>
+                    <p class="text-stone-600 text-sm">'바가지요금' 논란과 원산지 허위 표시 사례가 SNS를 통해 확산되며 신뢰도 저해 요인으로 작용.</p>
+                </div>
+            </div>
         </section>
 
-        {/* Store Information Section */}
-        <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8 text-center">
-          <div className="flex items-center mb-2 justify-center">
-            <Store size={28} className="text-orange-primary" />
-            <h2 className="font-bold text-3xl text-orange-primary ml-3">매장 안내</h2>
-          </div>
-          <ul className="text-2xl leading-relaxed space-y-2 mx-auto max-w-lg">
-            <li><strong>주소:</strong> 제주특별자치도 제주시 번영로 345, 내트럭하우스 1층</li>
-            <li><strong>운영 시간:</strong> 08:30 ~ 19:00 (연중무휴)</li>
-            <li><strong>특징:</strong> 방문/예약/픽업 가능</li>
-          </ul>
-          <button
-            onClick={handleViewMap}
-            className="mt-6 bg-gradient-to-r from-orange-400 to-orange-500 shadow-lg rounded-full font-bold px-8 py-3 transition hover:from-orange-500 hover:to-orange-600 scale-105 flex items-center justify-center mx-auto text-white"
-          >
-            <MapPin size={24} className="mr-2" /> 약도보기
-          </button>
-        </section>
-
-        {/* Product Showcase - Redesigned for CJ Market style */}
-        <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8 text-center">
-          <div className="flex items-center mb-2 justify-center">
-            <Box size={28} className="text-orange-primary" />
-            <h2 className="font-bold text-3xl text-orange-primary ml-3">제주참농원 상품</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Product Card 1: 귤 */}
-            <ProductCard
-              imageSrc="https://i.imgur.com/pMIMSaC.jpg"
-              imageAlt="햇살 가득 제주 참농원 귤"
-              name="햇살 가득 제주 참농원 귤"
-              description="제주 햇살을 가득 머금은 참농원의 달콤한 귤"
-            />
-
-            {/* Product Card 2: 한라봉 */}
-            <ProductCard
-              imageSrc="https://i.imgur.com/03LPOMn.jpg"
-              imageAlt="탐스러운 제주 참농원 한라봉"
-              name="탐스러운 제주 참농원 한라봉"
-              description="제주 햇살을 머금고 자란 참농원이 보장하는 달콤한 한라봉"
-            />
-
-            {/* Product Card 3: 천혜향 */}
-            <ProductCard
-              imageSrc="https://i.imgur.com/3WR7gLa.jpg"
-              imageAlt="하늘이 내린 향기 제주 참농원 천혜향"
-              name="하늘이 내린 향기 제주 참농원 천혜향"
-              description="하늘이 내린 향기, 참농원이 엄선한 프리미엄 천혜향"
-            />
-
-            {/* Product Card 4: 허쉬 초콜릿 (감귤 초콜릿 대신 허쉬 이미지 사용) */}
-            <ProductCard
-              imageSrc="https://i.imgur.com/2lpWY4Y.jpg"
-              imageAlt="달콤한 허쉬 초콜릿"
-              name="달콤한 허쉬 초콜릿"
-              description="제주참농원에서 엄선한 달콤한 허쉬 초콜릿"
-            />
-
-            {/* Product Card 5: 오메기떡 파이 */}
-            <ProductCard
-              imageSrc="https://i.imgur.com/nRx319o.jpg"
-              imageAlt="쫄깃한 제주 참농원 오메기떡 파이"
-              name="쫄깃한 제주 참농원 오메기떡 파이"
-              description="제주 전통의 맛을 그대로 담은 참농원의 쫄깃한 오메기떡 파이"
-            />
-
-            {/* Product Card 6: 고소리술 */}
-            <ProductCard
-              imageSrc="https://i.imgur.com/jRFFhQH.jpg"
-              imageAlt="향긋한 제주 참농원 고소리술"
-              name="향긋한 제주 참농원 고소리술"
-              description="제주의 깊은 향을 담은 참농원의 전통 고소리술"
-            />
-          </div>
-        </section>
-
-        {/* Reviews/Social Share Section */}
-        <section className="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8 text-center">
-          <div className="flex items-center mb-2 justify-center">
-            <Star size={28} className="text-orange-primary" />
-            <h2 className="font-bold text-3xl text-orange-primary ml-3">고객 후기</h2>
-          </div>
-          <p className="text-2xl leading-relaxed mb-6">
-            따뜻한 조명 아래, 고객이 직접 찍은 한라봉 언박싱/식탁 사진처럼 소중한 후기를 남겨주세요!
-          </p>
-          <p className="text-2xl leading-relaxed">
-            고객님들의 실제 후기가 쌓이면 이곳에 첨부될 예정입니다.
-          </p>
-        </section>
-      </main>
-
-      {/* Representative Message Popup */}
-      {showRepresentativeMessage && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full text-center relative animate-fade-in-up">
-            <h3 className="text-2xl font-bold text-orange-primary mb-4">제주참농원 대표 인사말</h3>
-            <p className="text-lg leading-relaxed text-almost-black mb-6">
-              "안녕하세요, 제주참농원 대표입니다. 저희는 제주 청정 자연의 선물인 신선한 과일과 해산물을 고객님의 식탁까지 가장 빠르고 정직하게 전해드리기 위해 최선을 다하고 있습니다. 15년간 쌓아온 신뢰를 바탕으로, 앞으로도 변함없이 최고의 품질과 진심을 담아 보답하겠습니다. 제주참농원에 많은 관심과 사랑 부탁드립니다!"
+        <section id="reputation" class="mb-16 scroll-mt-16">
+            <h2 class="text-3xl font-bold text-center mb-12">빛과 그림자: 소비자 평판 분석</h2>
+            <p class="text-center text-stone-600 max-w-3xl mx-auto mb-12">
+                제주 특산물에 대한 소비자 인식은 매우 긍정적인 동시에 일부 부정적인 경험이 공존합니다. 아래 차트는 전반적인 인식을 보여주며, 탭을 통해 긍정적 요인과 부정적 요인을 각각 자세히 살펴볼 수 있습니다.
             </p>
-            <button
-              onClick={() => setShowRepresentativeMessage(false)}
-              className="px-6 py-3 bg-gradient-to-r from-orange-400 to-orange-500 shadow-lg rounded-full font-bold px-8 py-3 transition hover:from-orange-500 hover:to-orange-600 scale-105 text-white"
-            >
-              닫기
-            </button>
-          </div>
-        </div>
-      )}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                <div class="lg:col-span-1">
+                    <div class="chart-container h-64 md:h-80 mx-auto">
+                        <canvas id="reputationChart"></canvas>
+                    </div>
+                     <p class="text-center text-xs text-stone-500 mt-2">출처: 2015년 소비자 설문조사</p>
+                </div>
+                <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+                    <div class="mb-4 border-b border-stone-200">
+                        <nav class="flex -mb-px" id="reputationTabs">
+                            <button data-tab="positive" class="reputation-tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300">
+                                긍정적 평판 요인
+                            </button>
+                            <button data-tab="negative" class="reputation-tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent text-stone-500 hover:text-stone-700 hover:border-stone-300 ml-8">
+                                부정적 평판 요인
+                            </button>
+                        </nav>
+                    </div>
+                    <div id="reputationContent">
+                    </div>
+                </div>
+            </div>
+        </section>
 
-      {/* Map Image Popup */}
-      {showMapImagePopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-4 max-w-3xl w-full text-center relative animate-fade-in-up">
-            <button
-              onClick={() => setShowMapImagePopup(false)}
-              className="absolute top-2 right-2 p-2 bg-gray-200 rounded-full text-gray-600 hover:bg-gray-300 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
-            <h3 className="text-2xl font-bold text-orange-primary mt-4 mb-4">제주참농원 약도</h3>
-            <img
-              src="https://i.imgur.com/kLnlhAZ.jpg"
-              alt="제주참농원 약도"
-              className="w-full h-auto rounded-lg mb-4"
-              onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/800x600/cccccc/333333?text=Map+Image+Not+Found"; }}
-            />
-            <button
-              onClick={() => setShowMapImagePopup(false)}
-              className="px-6 py-3 bg-gradient-to-r from-orange-400 to-orange-500 shadow-lg rounded-full font-bold px-8 py-3 transition hover:from-orange-500 hover:to-orange-600 scale-105 text-white"
-            >
-              닫기
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+        <section id="trends" class="mb-16 scroll-mt-16">
+            <h2 class="text-3xl font-bold text-center mb-12">무엇이 잘 팔릴까? 인기 품목 트렌드</h2>
+            <p class="text-center text-stone-600 max-w-3xl mx-auto mb-12">
+                소비자들이 실제로 많이 찾고 이야기하는 품목은 무엇일까요? 온라인 리뷰 수를 기반으로 한 아래 차트와 카테고리별 분석을 통해 최신 구매 트렌드를 확인해 보세요. 카테고리 버튼을 클릭하면 차트와 설명이 업데이트됩니다.
+            </p>
+            <div class="text-center mb-8">
+                <button data-category="all" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-white shadow-sm hover:bg-stone-100 mx-1 my-1">전체</button>
+                <button data-category="processed" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-white shadow-sm hover:bg-stone-100 mx-1 my-1">가공식품/디저트 🍰</button>
+                <button data-category="livestock" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-white shadow-sm hover:bg-stone-100 mx-1 my-1">축산물 🐷</button>
+                <button data-category="agricultural" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-white shadow-sm hover:bg-stone-100 mx-1 my-1">농산물 🍊</button>
+                <button data-category="fishery" class="tab-btn px-4 py-2 rounded-full text-sm font-medium bg-white shadow-sm hover:bg-stone-100 mx-1 my-1">수산물 🐟</button>
+            </div>
+            <div class="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+                <div class="chart-container h-80 md:h-96 lg:h-[500px]">
+                    <canvas id="popularityChart"></canvas>
+                </div>
+                <div id="trend-description" class="mt-6 p-4 bg-stone-50 rounded-md text-stone-700">
+                </div>
+            </div>
+        </section>
 
-export default App;
+        <section id="channels" class="scroll-mt-16">
+            <h2 class="text-3xl font-bold text-center mb-12">어디서 구매할까? 주요 구매 채널</h2>
+             <p class="text-center text-stone-600 max-w-3xl mx-auto mb-12">
+                제주 특산물은 전통적인 오프라인 채널과 급성장하는 온라인 채널을 통해 유통됩니다. 소비자들은 목적과 편의에 따라 다양한 채널을 활용하고 있으며, 특히 온라인 플랫폼의 영향력이 커지고 있습니다.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl mb-4">🛒</div>
+                    <h3 class="font-bold text-lg mb-2">온라인 전문몰</h3>
+                    <p class="text-stone-600 text-sm">삼다몰, 이제주몰 등<br>제주 특산물에 특화된 쇼핑몰. 높은 고객 만족도와 지역화폐 사용 가능.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl mb-4">🚚</div>
+                    <h3 class="font-bold text-lg mb-2">대형 이커머스</h3>
+                    <p class="text-stone-600 text-sm">쿠팡, 컬리 등<br>새벽/당일 배송 서비스로 신선식품 구매의 패러다임을 바꾸며 전국구 고객 확보.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                    <div class="text-4xl mb-4">🏪</div>
+                    <h3 class="font-bold text-lg mb-2">전통시장</h3>
+                    <p class="text-stone-600 text-sm">동문시장, 올레시장 등<br>관광객 필수 코스. 현장감과 다양한 품목을 직접 보고 구매하는 재미 제공.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                   <div class="text-4xl mb-4">✈️</div>
+                    <h3 class="font-bold text-lg mb-2">면세점/기념품샵</h3>
+                    <p class="text-stone-600 text-sm">공항, 관광지 등<br>여행의 마지막 관문. 고급화된 포장의 초콜릿, 디저트류 등 선물용 상품 중심.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-stone-800 text-white mt-16">
+        <div class="container mx-auto py-4 px-5 text-center">
+            <p class="text-stone-400 text-sm">본 페이지는 제공된 '제주 특산물 시장 분석 보고서'를 기반으로 제작된 대화형 데이터 시각화입니다.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const reputationData = {
+                positive: {
+                    title: '✅ 긍정적 평판 요인',
+                    points: [
+                        { icon: '🌿', text: "'청정 제주'라는 강력한 브랜드 이미지" },
+                        { icon: '🏆', text: "삼다몰 등 전문 쇼핑몰의 높은 고객 만족도 (6년 연속 1위)" },
+                        { icon: '🔄', text: "여행 후 온라인 재구매 패턴 확산" },
+                        { icon: '💖', text: "고급화된 가공식품(프루낵 초콜릿 등)에 대한 높은 만족도" },
+                        { icon: '👍', text: "다금바리 등 '비싸지만 가치있다'는 '가심비' 품목 존재" }
+                    ]
+                },
+                negative: {
+                    title: '⚠️ 부정적 평판 요인',
+                    points: [
+                        { icon: '💸', text: "해산물, 식사 메뉴 등에서 불거진 '바가지요금' 논란" },
+                        { icon: '❓', text: "수입산을 제주산으로 속여 파는 원산지 허위 표시 사례" },
+                        { icon: '📉', text: "가격에 비해 양이 부족하다는 소비자 불만" },
+                        { icon: '🗣️', text: "SNS를 통한 부정적 경험의 빠른 확산" },
+                        { icon: '🤔', text: "프리미엄 이미지로 인한 전반적인 높은 가격대에 대한 부담" }
+                    ]
+                }
+            };
+
+            const trendData = {
+                all: {
+                    description: "전체적으로 제주 흑돼지 가공품과 오메기떡이 온라인에서 압도적인 인기를 보입니다. 전통적인 농수산물보다 편리하고 특색있는 가공식품에 대한 선호도가 높게 나타납니다.",
+                    items: {
+                        labels: ['흑돼지 양념구이', '오메기떡', '하우스 감귤', '흑돼지 두루치기', '한라봉', '고등어', '감귤초콜릿', '갈치'],
+                        data: [36000, 7000, 8910, 5000, 4061, 1945, 207, 898]
+                    }
+                },
+                processed: {
+                    description: "오메기떡이 전통 간식의 현대화에 성공하며 폭발적인 인기를 얻고 있습니다. 기존의 저가형 초콜릿에서 벗어나, 실제 과일을 사용한 고급 초콜릿과 특색있는 디저트(제주돌빵 등)가 새로운 트렌드로 부상하고 있습니다. 흑돼지 육포, 족발 등 축산 가공품도 강세입니다.",
+                    items: {
+                        labels: ['오메기떡', '흑돼지 양념구이', '흑돼지 두루치기', '감귤초콜릿', '흑돼지 껍데기', '흑돼지 육포'],
+                        data: [7000, 36000, 5000, 207, 2038, 121]
+                    }
+                },
+                livestock: {
+                    description: "제주 흑돼지는 단순 정육을 넘어 양념육, 두루치기, 껍데기, 육포 등 다양한 가공 형태로 큰 인기를 끌고 있습니다. 이는 소비자의 편의성을 높이고 부가가치를 창출한 성공적인 다각화 사례입니다.",
+                    items: {
+                        labels: ['흑돼지 양념구이', '흑돼지 두루치기', '흑돼지 껍데기', '흑돼지 뒷다리살', '흑돼지 육포'],
+                        data: [36000, 5000, 2038, 1121, 121]
+                    }
+                },
+                agricultural: {
+                    description: "감귤, 한라봉 등 전통적인 감귤류는 여전히 선물용으로 높은 수요를 보입니다. 특히 온라인을 통한 산지 직송 구매가 활발합니다. 최근에는 무농약 바나나, 애플망고 등 새로운 아열대 과일이 주목받고 있습니다.",
+                    items: {
+                        labels: ['하우스 감귤', '한라봉', '황금향', '레드향', '천혜향'],
+                        data: [8910, 4061, 1500, 1200, 1100]
+                    }
+                },
+                fishery: {
+                    description: "고등어와 갈치는 제주를 대표하는 수산물로, 선물세트 형태로 꾸준한 인기를 유지하고 있습니다. 옥돔, 참조기 또한 인기 품목입니다. 다만, 일부 품목의 가격 논란은 해결해야 할 과제입니다.",
+                    items: {
+                        labels: ['고등어', '갈치', '옥돔', '참조기'],
+                        data: [1945, 898, 500, 450]
+                    }
+                }
+            };
+
+            const reputationCtx = document.getElementById('reputationChart').getContext('2d');
+            const reputationChart = new Chart(reputationCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['좋다', '보통', '나쁘다'],
+                    datasets: [{
+                        label: '제주 특산물 이미지',
+                        data: [60, 36, 3],
+                        backgroundColor: [
+                            'rgba(52, 211, 153, 0.7)', // green-400
+                            'rgba(251, 191, 36, 0.7)', // amber-400
+                            'rgba(239, 68, 68, 0.7)'   // red-500
+                        ],
+                        borderColor: [
+                            'rgba(5, 150, 105, 1)',
+                            'rgba(217, 119, 6, 1)',
+                            'rgba(185, 28, 28, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: '제주 특산물 전반적 인식'
+                        }
+                    }
+                }
+            });
+
+            const popularityCtx = document.getElementById('popularityChart').getContext('2d');
+            const popularityChart = new Chart(popularityCtx, {
+                type: 'bar',
+                data: {
+                    labels: trendData.all.items.labels,
+                    datasets: [{
+                        label: '온라인 상품 리뷰 수 (추정)',
+                        data: trendData.all.items.data,
+                        backgroundColor: 'rgba(249, 115, 22, 0.6)', // orange-500
+                        borderColor: 'rgba(249, 115, 22, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000) {
+                                        return (value / 1000) + 'k';
+                                    }
+                                    return value;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: '주요 특산물 온라인 인기도 (리뷰 수 기준)',
+                            font: {
+                                size: 16
+                            }
+                        },
+                         tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.x !== null) {
+                                        label += new Intl.NumberFormat('ko-KR').format(context.parsed.x) + '개';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            function updateTrendContent(category) {
+                const data = trendData[category];
+                document.getElementById('trend-description').innerHTML = `<p>${data.description}</p>`;
+                
+                popularityChart.data.labels = data.items.labels;
+                popularityChart.data.datasets[0].data = data.items.data;
+                popularityChart.update();
+
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active-tab');
+                    if (btn.dataset.category === category) {
+                        btn.classList.add('active-tab');
+                    }
+                });
+            }
+            
+            document.querySelectorAll('.tab-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const category = button.dataset.category;
+                    updateTrendContent(category);
+                });
+            });
+
+            function updateReputationContent(tab) {
+                const content = reputationData[tab];
+                const container = document.getElementById('reputationContent');
+                
+                let html = `<h3 class="font-bold text-lg mb-4">${content.title}</h3><ul class="space-y-3">`;
+                content.points.forEach(point => {
+                    html += `<li class="flex items-start"><span class="mr-3 text-xl">${point.icon}</span><span class="text-stone-600">${point.text}</span></li>`;
+                });
+                html += `</ul>`;
+                
+                container.innerHTML = html;
+
+                document.querySelectorAll('.reputation-tab-btn').forEach(btn => {
+                    btn.classList.remove('text-orange-600', 'border-orange-600');
+                    btn.classList.add('text-stone-500', 'border-transparent');
+                    if (btn.dataset.tab === tab) {
+                        btn.classList.add('text-orange-600', 'border-orange-600');
+                        btn.classList.remove('text-stone-500', 'border-transparent');
+                    }
+                });
+            }
+
+            document.querySelectorAll('.reputation-tab-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const tab = button.dataset.tab;
+                    updateReputationContent(tab);
+                });
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active-nav');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active-nav');
+                    }
+                });
+            });
+
+            navLinks.forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            updateTrendContent('all');
+            updateReputationContent('positive');
+        });
+    </script>
+
+</body>
+</html>
